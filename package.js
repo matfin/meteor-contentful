@@ -7,6 +7,50 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
+
+	/**
+	 *	Configure the package
+	 */
+	configurePackage(api);
+
+	/**
+	 *	Exporting objects we will be using
+	 */
+	api.export('CFConfig');
+	api.export('Contentful');
+	api.export('ImageProcessor');
+	api.export('Logger');
+
+});
+
+
+Package.onTest(function(api) {
+
+	/**
+	 *	Configure the package
+	 */
+	configurePackage(api);
+
+	/** 
+   *	Dependencies
+	 */
+	api.use([
+		'tinytest', 
+		'mongo-livedata'
+	], ['client', 'server']);
+
+	/**
+	 *	Adding test specs (Server side only)
+	 */
+	api.addFiles([
+		'_tests/init.js',
+		'_tests/contentful.js',
+		'_tests/imageprocessor.js'
+	], 'server');
+
+});
+
+function configurePackage(api) {
 	/**
 	 *	Minimum version of Meteor required
 	 */
@@ -39,9 +83,4 @@ Package.onUse(function(api) {
 		'_src/logger.js'
 	], 'server');
 
-	api.export('CFConfig');
-	api.export('Contentful');
-	api.export('ImageProcessor');
-	api.export('Logger');
-
-});
+};
