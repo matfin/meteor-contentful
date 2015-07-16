@@ -29,14 +29,7 @@ Contentful = {
 	checkCFCredentials: function(request) {
 		var granted = 	Utils.checkNested(request, 'headers', 'authorization')
 					&& request.headers.authorization === CFConfig.callbackAuthKey;
-
-		if(!granted) {
-			console.log('Invalid access credentials for hook provided');
-		}
-		else {
-			console.log('Valid access credentials for hook provided');
-		}
-
+		
 		return granted;
 	},
 

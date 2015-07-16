@@ -35,9 +35,8 @@ Package.onTest(function(api) {
    *	Dependencies
 	 */
 	api.use([
-		'tinytest', 
-		'mongo-livedata'
-	], ['client', 'server']);
+		'tinytest'	
+	], 'server');
 
 	/**
 	 *	Adding test specs (Server side only)
