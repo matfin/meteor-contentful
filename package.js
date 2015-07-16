@@ -65,7 +65,6 @@ function configurePackage(api) {
 		'ejson',
 		'underscore',
 		'aramk:q',
-		'matfin:helpers',
 		'meteorhacks:npm'
 	], 'server');
 
@@ -78,6 +77,7 @@ function configurePackage(api) {
 	 */
 	api.addFiles([
 		'_config/settings.js',
+		'_src/utils.js',
 		'_src/contentful.js',
 		'_src/imageprocessor.js',
 		'_src/logger.js'

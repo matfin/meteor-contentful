@@ -27,7 +27,7 @@ Contentful = {
 	 *	@return 	{Boolean}		 - true if credentials are valid 	
 	 */
 	checkCFCredentials: function(request) {
-		var granted = 	Helpers.checkNested(request, 'headers', 'authorization')
+		var granted = 	Utils.checkNested(request, 'headers', 'authorization')
 					&& request.headers.authorization === CFConfig.callbackAuthKey;
 
 		if(!granted) {
@@ -50,7 +50,7 @@ Contentful = {
 	 */
 	contentTypeName: function(entry) {
 
-		if(Helpers.checkNested(entry, 'sys', 'contentType', 'sys', 'id')) {
+		if(Utils.checkNested(entry, 'sys', 'contentType', 'sys', 'id')) {
 
 			var contentTypeId = entry.sys.contentType.sys.id,
 				contentType = _.find(CFConfig.contentTypes, function(contentType) {
@@ -143,7 +143,7 @@ Contentful = {
  					/**
  					 *	Loop through each asset if they exist with an entity
  					 */
- 					if(Helpers.checkNested(data, 'includes', 'Asset')) {
+ 					if(Utils.checkNested(data, 'includes', 'Asset')) {
 
  						_.each(data.includes.Asset, function(asset) {
 	 						/**
@@ -383,7 +383,7 @@ Contentful = {
 			case 'Entry': {
 				collection = this.collections.entries;
 				updateData = {
-					fields: Helpers.flattenObjects(entry.fields, 'en-US'),
+					fields: Utils.flattenObjects(entry.fields, 'en-US'),
 					sys: entry.sys,
 					contentTypeName: self.contentTypeName(entry)
 				};
@@ -392,7 +392,7 @@ Contentful = {
 			case 'Asset': {
 				collection = this.collections.assets;
 				updateData = {
-					fields: Helpers.flattenObjects(entry.fields, 'en-US'),
+					fields: Utils.flattenObjects(entry.fields, 'en-US'),
 					sys: entry.sys
 				};
 				break;
