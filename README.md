@@ -1,2 +1,4 @@
-# meteor-contentful
-Package used to download content data from Contentful for Meteor JS based projects
+matfin:contentful
+=================
+
+Class for fetching data from the Contentful content delivery API.
