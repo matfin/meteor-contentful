@@ -93,7 +93,7 @@ ImageProcessor = {
 
 			Contentful.collections.assets.find({}).observeChanges({
 				added: function(id, asset) {
-							
+				
 					self.addImageJob(asset, false).then(function() {
 						Logger.log('collection', {
 							message: 'Asset added'

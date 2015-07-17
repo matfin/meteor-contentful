@@ -35,7 +35,7 @@ Package.onTest(function(api) {
    *	Dependencies
 	 */
 	api.use([
-		'tinytest'	
+		'tinytest'
 	], 'server');
 
 	/**
