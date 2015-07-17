@@ -4,6 +4,7 @@ Tinytest.addAsync('ImageProcessor - observeAssetChanges should call the addImage
 	 *	Creating stubs and backups
 	 */
 	ImageProcessor_addImageJob = _.extend(ImageProcessor.addImageJob);
+	ImageProcessor_Fiber = _.extend(ImageProcessor.Fiber);
 
 	var objectToAdd = {
 		id: 1,
@@ -11,18 +12,31 @@ Tinytest.addAsync('ImageProcessor - observeAssetChanges should call the addImage
 		other: 'two'
 	};
 
+	ImageProcessor.Fiber = function(cb) {
+		return {
+			run: function() {
+				cb();
+			}
+		}
+	};
+
 	ImageProcessor.addImageJob = function(asset, forceupdate) {
 		/**
 		 *	Test should be called when an item is added.
 		 */
-		test.intanceOf(asset, Object);
-		test.isTrue(forceupdate);
+		test.instanceOf(asset, Object);
+		test.isFalse(forceupdate);
+
+		return {
+			then: function(cb) {
+				cb();
+			}
+		};
 	};
 
 	/**
 	 *	Call the function observeAssetChanges
 	 */
-	ImageProcessor.init();
 	ImageProcessor.observeAssetChanges();
 
 	/**
