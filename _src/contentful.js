@@ -266,17 +266,14 @@ Contentful = {
 		/**
 		 *	Determine if we are updating or deleting content
 		 */
-
 		switch(request.headers['x-contentful-topic']) {
 			case 'ContentManagement.Entry.publish':
 			case 'ContentManagement.Asset.publish': {
 				return this.contentPublish(request.body);
-				break;
 			}
 			case 'ContentManagement.Entry.unpublish':
 			case 'ContentManagement.Asset.unpublish': {
 				return this.contentUnpublish(request.body);
-				break;
 			}
 			default: {
 				var deferred = Q.defer();
@@ -285,7 +282,6 @@ Contentful = {
 					message: 'No content has been changed.'
 				});
 				return deferred.promise;
-				break;
 			}
 		}
 	},
