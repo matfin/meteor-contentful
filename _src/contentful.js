@@ -318,6 +318,7 @@ Contentful = {
 					status: 'error',
 					message: 'Entry type does not exist. Exiting'
 				});
+				return deferred.promise;
 			}
 		}
 
@@ -337,6 +338,11 @@ Contentful = {
 					'sys.id': entry.sys.id
 				});
 
+				deferred.resolve({
+					status: 'ok',
+					message: 'Contentful content updated ok'
+				});
+
 			}).run();
 		}
 		else {
@@ -344,6 +350,7 @@ Contentful = {
 				status: 'error',
 				message: 'Specified collection does not exist.'
 			});
+			return deferred.promise;
 		}
 
 		return deferred.promise;
@@ -418,7 +425,7 @@ Contentful = {
 				deferred.resolve({
 					status: 'ok',
 					message: 'Contentful content updated ok'
-				})
+				});
 
 			}).run();
 		}

@@ -218,3 +218,85 @@ Tinytest.add('Contentful - handleRequest should call contentUnpublish when the h
 	Contentful = Contentful_backup;
 
 });
+
+
+Tinytest.addAsync('Contentful - unPublish should call remove() on a collection and resolve on a promise if the request body sys.type is DeletedEntry or DeltetedAsset, or reject the promise otherwise', function(test, onComplete) {
+
+	/**
+	 *	Creating backups and stubs
+	 */
+	var Contentful_backup = _.clone(Contentful);
+	var Q_backup = _.clone(Q);
+	var requestBody = {
+		sys: {
+			type: 'DeletedEntry'
+		}
+	};
+
+	var removeCallCount = 0,
+			deferRejectCallCount = 0,
+			deferResolveCallCount = 0;
+
+	Contentful.collections.entries = Contentful.collections.assets = {
+		remove: function() {
+			removeCallCount++;
+		}
+	};
+
+	Q.defer = function() {
+		return {
+			reject: function() {
+				deferRejectCallCount++;
+			},
+			resolve: function() {
+				deferResolveCallCount++;
+			}
+		}
+	};
+
+	/**
+	 *	Call the function and run the test (for DeletedEntry)
+	 */
+	Contentful.contentUnpublish(requestBody);
+	test.equal(removeCallCount, 1);
+	test.equal(deferResolveCallCount, 1);
+
+	/**
+	 *	Resetting requestBody for another test
+	 */
+	requestBody = {
+		sys: {
+			type: 'DeletedAsset'
+		}
+	};
+
+	/**
+	 *	Call the function and run the test (for DeletedAsset)
+	 */
+	Contentful.contentUnpublish(requestBody);
+	test.equal(removeCallCount, 2);
+	test.equal(deferResolveCallCount, 2);
+
+	/**
+	 *	Resetting requestBody for another test
+	 */
+	requestBody = {
+		sys: {
+			type: 'InvalidEntry'
+		}
+	};
+
+	/**
+	 *	Call the function and run the test (to trigger a rejected promise)
+	 */
+	Contentful.contentUnpublish(requestBody);
+	test.equal(deferRejectCallCount, 1);
+
+	/**
+	 *	Cleanup
+	 */
+	Contentful = Contentful_backup;
+	Q = Q_backup;
+
+	onComplete();
+});
