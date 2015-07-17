@@ -398,6 +398,7 @@ Contentful = {
 					status: 'error',
 					message: 'Entry type does not exist. Exiting'
 				});
+				return deferred.promise;
 			}
 		}
 
@@ -434,6 +435,7 @@ Contentful = {
 				status: 'error',
 				message: 'Specified collection does not exist.'
 			});
+			return deferred.promise;
 		}
 		
 		return deferred.promise;

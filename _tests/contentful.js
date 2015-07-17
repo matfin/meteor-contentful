@@ -300,3 +300,99 @@ Tinytest.addAsync('Contentful - unPublish should call remove() on a collection a
 
 	onComplete();
 });
+
+
+Tinytest.addAsync('Contentful - contentPublish should call collection update if entry.sys.type is Asset or Entry, or reject a promise if not.', function(test, onComplete) {
+
+	/**
+	 *	Creating backups and stubs
+	 */
+	var Contentful_backup = _.clone(Contentful),
+			Q_backup = _.clone(Q);
+
+	var collectionUpdateCallCount = 0,
+			deferRejectCallCount = 0,
+			deferResolveCallCount = 0;
+
+	Contentful.collections.entries = Contentful.collections.assets = {
+		update: function() {
+			collectionUpdateCallCount++;
+		}
+	};
+
+	Q.defer = function() {
+		return {
+			resolve: function() {
+				deferResolveCallCount++;
+			},
+			reject: function() {
+				deferRejectCallCount++;
+			}
+		}
+	};
+
+	var requestBody = {
+		fields: {
+			'en-US': {}
+		},
+		sys: {
+			id: '12345',
+			type: 'Entry'
+		}
+	};
+
+	/**
+	 *	Call the function and then run the test (for update to Entry)
+	 */
+	Contentful.contentPublish(requestBody);
+	test.equal(collectionUpdateCallCount, 1);
+	test.equal(deferResolveCallCount, 1);
+
+	/**
+	 *	Reset the request body
+	 */
+	requestBody = {
+		fields: {
+			'en-US': {}
+		},
+		sys: {
+			id: '12345',
+			type: 'Asset'
+		}
+	};
+
+	/**
+	 *	Call the function and run the test (for update to Asset)
+	 */	
+	Contentful.contentPublish(requestBody);
+	test.equal(collectionUpdateCallCount, 2);
+	test.equal(deferResolveCallCount, 2);
+
+	/**
+	 *	Reset the request body
+	 */
+	requestBody = {
+		fields: {
+			'en-US': {}
+		},
+		sys: {
+			id: '12345',
+			type: 'Invalid'
+		}
+	};
+
+	/**
+	 *	Call the function and run the test (for promise rejection)
+	 */
+	Contentful.contentPublish(requestBody);
+	test.equal(deferRejectCallCount, 1);
+
+	/**
+	 *	Cleanup
+	 */
+	Contentful = Contentful_backup;
+	Q = Q_backup;
+
+	onComplete();
+
+});
