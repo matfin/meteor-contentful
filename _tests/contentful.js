@@ -396,3 +396,58 @@ Tinytest.addAsync('Contentful - contentPublish should call collection update if 
 	onComplete();
 
 });
+
+
+Tinytest.add('Contentful - should call res.end() with a string if the content type is application/json or an object if not', function(test) {
+
+	/**
+	 *	Creating stubs
+	 */
+	var writeHeadCallCount = 0,
+			endCallCount = 0;
+
+	var res = {
+		writeHead: function() {
+			writeHeadCallCount++;
+		},
+		end: function(param) {
+			/**
+			 *	Run the test
+			 */
+			test.instanceOf(param, Object);
+		}
+	};
+
+	var responseData = {
+		statusCode: {},
+		contentType: 'nothing',
+		data: {
+			x: '1',
+			y: '2',
+			z: '3'
+		}
+	};
+
+	/** 
+	 *	Run the function (with no content type)
+	 */
+	Contentful.makeResponse(res, responseData);
+
+	/**
+	 *	Resetting res 
+	 */
+	res.end = function(param) {
+		test.equal(param.constructor.name, 'String');
+	};
+
+	/**
+	 *	Resetting responseData
+	 */
+	responseData.contentType = 'application/json';
+
+	/**
+	 *	Run the function (with application/json as the content type)
+	 */
+	Contentful.makeResponse(res, responseData);
+
+});
