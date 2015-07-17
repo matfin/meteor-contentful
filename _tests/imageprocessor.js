@@ -3,8 +3,8 @@ Tinytest.add('ImageProcessor - init should call function observeAssetChanges and
 	/**
 	 *	Stubs and backups
 	 */
-	ImageProcessor_backup = _.clone(ImageProcessor);
-	Meteor_backup = _.clone(Meteor);
+	ImageProcessor_observeAssetChanges = _.extend(ImageProcessor.observeAssetChanges);
+	Meteor_npmRequire = _.extend(Meteor.npmRequire);
 
 	observeAssetChangesCallCount = 0;
 	fiberRunCount = 0;
@@ -35,8 +35,8 @@ Tinytest.add('ImageProcessor - init should call function observeAssetChanges and
 	/**
 	 *	Cleanup
 	 */
-	ImageProcessor = ImageProcessor_backup;
-	Meteor = Meteor_backup;
+	ImageProcessor.observeAssetChanges = ImageProcessor_observeAssetChanges;
+	Meteor.npmRequire = Meteor_npmRequire;
 
 });
 
@@ -81,7 +81,7 @@ Tinytest.addAsync('ImageProcessor - observeAssetChanges should call the addImage
 	/**
 	 *	Cleanup
 	 */
-	//Contentful.collections.assets.remove();
+	Contentful.collections.assets.remove();
 	Contentful = Contentful_backup;
 
 	onComplete();
