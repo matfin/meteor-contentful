@@ -123,7 +123,7 @@ Tinytest.add('Contentful - handleRequest should call contentPublish when the hea
 	/**
 	 *	Stubbing the request and creating backups
 	 */
-	var Contentful_backup = _.clone(Contentful);
+	var Contentful_contentPublish = _.extend(Contentful.contentPublish);
 	var request = {
 		headers: {
 			'x-contentful-topic': 'ContentManagement.Entry.publish'
@@ -164,8 +164,8 @@ Tinytest.add('Contentful - handleRequest should call contentPublish when the hea
 	/**
 	 *	Cleanup
 	 */
-	Contentful = Contentful_backup;
-
+	Contentful.contentPublish = Contentful_contentPublish;
+	
 });
 
 
@@ -174,7 +174,7 @@ Tinytest.add('Contentful - handleRequest should call contentUnpublish when the h
 	/**
 	 *	Stubbing the request and creating backups
 	 */
-	var Contentful_backup = _.clone(Contentful);
+	var Contentful_contentUnpublish = _.extend(Contentful.contentUnpublish);
 	var request = {
 		headers: {
 			'x-contentful-topic': 'ContentManagement.Entry.unpublish'
@@ -215,7 +215,7 @@ Tinytest.add('Contentful - handleRequest should call contentUnpublish when the h
 	/**
 	 *	Cleanup
 	 */
-	Contentful = Contentful_backup;
+	Contentful.contentUnpublish = Contentful_contentUnpublish;
 
 });
 
@@ -225,7 +225,9 @@ Tinytest.addAsync('Contentful - unPublish should call remove() on a collection a
 	/**
 	 *	Creating backups and stubs
 	 */
-	var Contentful_backup = _.clone(Contentful);
+	var Contentful_collections_entries = _.clone(Contentful.collections.entries);
+	var Contentful_collections_assets = _.clone(Contentful.collections.assets);
+
 	var Q_backup = _.clone(Q);
 	var requestBody = {
 		sys: {
@@ -295,10 +297,12 @@ Tinytest.addAsync('Contentful - unPublish should call remove() on a collection a
 	/**
 	 *	Cleanup
 	 */
-	Contentful = Contentful_backup;
+	Contentful.collections.entries = Contentful_collections_entries;
+	Contentful.collections.assets = Contentful_collections_assets;
 	Q = Q_backup;
 
 	onComplete();
+
 });
 
 
@@ -307,8 +311,9 @@ Tinytest.addAsync('Contentful - contentPublish should call collection update if 
 	/**
 	 *	Creating backups and stubs
 	 */
-	var Contentful_backup = _.clone(Contentful),
-			Q_backup = _.clone(Q);
+	var Contentful_collections_entries = _.clone(Contentful.collections.entries);
+	var Contentful_collections_assets = _.clone(Contentful.collections.assets);
+	var	Q_backup = _.clone(Q);
 
 	var collectionUpdateCallCount = 0,
 			deferRejectCallCount = 0,
@@ -390,7 +395,8 @@ Tinytest.addAsync('Contentful - contentPublish should call collection update if 
 	/**
 	 *	Cleanup
 	 */
-	Contentful = Contentful_backup;
+	Contentful.collections.entries = Contentful_collections_entries;
+	Contentful.collections.assets = Contentful_collections_assets;
 	Q = Q_backup;
 
 	onComplete();
