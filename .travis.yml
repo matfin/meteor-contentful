@@ -9,6 +9,8 @@ install:
   - "curl https://install.meteor.com | /bin/sh"
   # Adding meteor to the $PATH
   - "export PATH=$HOME/.meteor:$PATH"
+  # Copy the settings_sample.js file to settings.js
+  - "cp _config/settings_sample.js _config/settings.js"
   # Install spacejam
   - "npm install spacejam"
 
