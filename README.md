@@ -154,9 +154,9 @@ Below is a sample of the settings.json file.
 }
 ```
 
-### Digging into settings.js
+### Digging into settings.json
 
-This section describes what we need to put inside the settings.js file. 
+This section describes what we need to put inside the settings.json file. 
 
 #### endpointUrl 
 
