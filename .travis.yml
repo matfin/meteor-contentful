@@ -7,6 +7,8 @@ node_js: "0.12.7"
 install:
   # Install meteor
   - "curl https://install.meteor.com | /bin/sh"
+  # Adding meteor to the $PATH
+  - "export PATH=$HOME/.meteor:$PATH"
   # Install spacejam
   - "npm install spacejam"
 
