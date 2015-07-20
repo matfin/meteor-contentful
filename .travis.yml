@@ -16,4 +16,4 @@ install:
 
 # For testing meteor packages, that's all that is needed. 
 script:
-  - "node_modules/.bin/spacejam test-packages ./"
+  - "node_modules/.bin/spacejam test-packages ./ --settings settings.json"

@@ -55,12 +55,103 @@ $ meteor update && meteor install matfin:meteor-contentful
 
 ### Configuring the package. 
 
-The package will not work immediately - you will need to make a copy of the file settings_sample.js inside the packages _config directory, and then edit the contents to fit your needs.
+The package will not work immediately. You will need to copy the settings.json into your project root directory, or, if you already have a settings.json file you need to copy the "contentful" block into that.
 
-Run the following command from the root directory of your Meteor project:
+Each section of the settings.json file is described below, so you will to copy the sample below into the root directory of your app and run meteor from the command line using:
 
 ```
-$ cp /packages/meteor-contentful/_config/settings_sample.js /packages/meteor-contentful/_config/settings.js
+$ meteor --settings settings.json
+```
+
+When deploying to a production server you will need create a new environment variable called METEOR_SETTINGS and add the minified contents of the settings.json file to that, edited for your needs.
+
+```$ export METEOR_SETTINGS='{"contentful:{...}"}'
+
+A useful JSON minifier can be found at [http://jsonformatter.curiousconcept.com/](http://jsonformatter.curiousconcept.com/).
+
+Below is a sample of the settings.json file.
+
+```
+{
+	"contentful": {
+		"endpointUrl": "http://cdn.contentful.com",
+		"authorisationHeader": "'Bearer <Your auth id>'",
+		"contentTypeHeader": "application/vnd.contentful.delivery.v1+json",
+		"spaceID": "<your space ID>",
+		"processedImageCollectionName": "ac_images",
+		"contentTypes": [
+			{
+				"name": "meaningful-name",
+				"id": "contentful-id"
+			},
+			{
+				"name": "another-meaningful-name",
+				"id": "another-contentful-id"
+			}
+		],
+		"imageProcessor": {
+			"path": "local/filesystem/path",
+			"baseUrl": "http://media.example.com/images",
+			"quality": 0.9,
+			"pixelDensities": [
+				{
+					"prefix": "",
+					"multiplier": 1
+				},
+				{
+					"prefix": "@2x",
+					"multiplier": 2
+				},
+				{
+					"prefix": "@3x",
+					"multiplier": 3
+				}
+			],
+			"imageTypes": {
+				"portfolio": {
+					"filetype": "jpg",
+					"sizes": [
+						{
+							"device": "desktop",
+							"width": 1280,
+							"height": 800
+						},
+						{
+							"device": "tablet",
+							"width": 800,
+							"height": 600
+						},
+						{
+							"device": "mobile",
+							"width": 320,
+							"height": 240
+						}
+					]
+				},
+				"logo": {
+					"filetype": "png",
+					"sizes": [
+						{
+							"device": "desktop",
+							"width": 100,
+							"height": 100
+						},
+						{
+							"device": "tablet",
+							"width": 75,
+							"height": 75
+						},
+						{
+							"device": "mobile",
+							"width": 50,
+							"height": 50
+						}
+					]
+				}
+			}
+		}
+	}
+}
 ```
 
 ### Digging into settings.js
