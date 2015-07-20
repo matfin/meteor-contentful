@@ -1,6 +1,6 @@
 Package.describe({
 	name: 			'matfin:meteor-contentful',
-	version: 		'0.0.9',
+	version: 		'1.0.0',
 	summary: 		'Package to interact with the Contentful content delivery API.',
 	documentation: 	'README.md',
 	git: 'https://github.com/matfin/meteor-contentful'
@@ -42,7 +42,6 @@ Package.onTest(function(api) {
 	 *	Adding test specs (Server side only)
 	 */
 	api.addFiles([
-		'_tests/init.js',
 		'_tests/contentful.js',
 		'_tests/imageprocessor.js'
 	], 'server');
