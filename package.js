@@ -62,8 +62,8 @@ function configurePackage(api) {
 		'http',
 		'ejson',
 		'underscore',
-		'aramk:q',
-		'meteorhacks:npm'
+		'aramk:q@1.0.1_1',
+		'meteorhacks:npm@1.3.0'
 	], 'server');
 
 	/**
