@@ -116,7 +116,6 @@ Tinytest.add('ImageProcessor - processImages - should call updateImagesCollectio
 	var updateImagesCollectionCallCount = 0;
 
 	ImageProcessor.updateImagesCollection = function() {
-		console.log('Times this is called');
 		updateImagesCollectionCallCount++;
 	};
 
@@ -151,6 +150,187 @@ Tinytest.add('ImageProcessor - processImages - should call updateImagesCollectio
 	CFConfig = CFConfig_backup;
 	ImageProcessor.updateImagesCollection = ImageProcessor_updateImagesCollection;
 	ImageProcessor.GM = false;
+});
+
+
+Tinytest.addAsync('ImageProcessor - processImages - should call GraphicsMagick and function to update the images collection with the correct parameters given an asset', function(test, onComplete) {
+
+	/**
+	 *	Creating stubs and backups
+	 */
+	var CFConfig_backup = _.extend(CFConfig);
+
+	var asset = {
+		sys: {
+			id: 1
+		},
+		imageResizeParams: [
+			{
+				size: {
+					device: 'tablet',
+					width: 800,
+					height: 600
+				},
+				pixelDensity: {
+					prefix: '',
+					multiplier: 1
+				},
+				fileType: 'jpg'
+			},
+			{
+				size: {
+					device: 'tablet',
+					width: 800,
+					height: 600
+				},
+				device: 'tablet',
+				pixelDensity: {
+					prefix: '@2x',
+					multiplier: 2
+				},
+				fileType: 'jpg'
+			},
+			{
+				size: {
+					device: 'tablet',
+					width: 800,
+					height: 600
+				},
+				device: 'tablet',
+				pixelDensity: {
+					prefix: '@3x',
+					multiplier: 3
+				},
+				fileType: 'jpg'
+			}
+		]
+	};
+
+	CFConfig.imageProcessor.path = 'path/to/file/'
+
+	/** 
+	 *	Each time the GM function is called, store the given 
+	 *	params in here so we can test them later
+	 */
+	var GM_params = {
+		sourceFilePathParams: [],
+		setFormatParams: [],
+		resizeParams: [],
+		writeParams: []
+	}
+
+	/**
+	 *	We should also check the parameters being passed in when the 
+	 *	images collection is being updated
+	 */
+	var updateCollectionParams = {
+		assetIdParams: [],
+		sizeParams: [],
+		pixelDensityParams: [],
+		filenameParams: []
+	};
+
+	/**
+	 *	Stubbing the ImageProcessor updateImagesCollection function
+	 */
+	ImageProcessor.updateImagesCollection = function(item) {
+		updateCollectionParams.assetIdParams.push(item.assetId);
+		updateCollectionParams.sizeParams.push(item.size);
+		updateCollectionParams.pixelDensityParams.push(item.pixelDensity);
+		updateCollectionParams.filenameParams.push(item.filename);
+	};
+
+	/** 
+	 *	Stubbing GM chained functions and pushing in given params
+	 */
+	ImageProcessor.GM = function(sourceFilePath) {
+		GM_params.sourceFilePathParams.push(sourceFilePath);
+		return {
+			setFormat: function(format) {
+				GM_params.setFormatParams.push(format);
+				return {
+					resize: function(width) {
+						GM_params.resizeParams.push(width);
+						return {
+							write: function(filename, cb) {
+								GM_params.writeParams.push(filename);
+								cb();
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	/**
+	 *	Call the function and then test that the GM function is receiving 
+	 *	the correct parameters, then test that the function to update
+	 *	the images collection is also receiving the correct parameters.
+	 */
+	ImageProcessor.processImages('path/to/file', asset);
+
+	/**
+	 *	Test params given to the function to update the images collection
+	 */
+	test.equal(updateCollectionParams.assetIdParams[0], 1);
+	test.equal(updateCollectionParams.assetIdParams[1], 1);
+	test.equal(updateCollectionParams.assetIdParams[2], 1);
+
+	test.equal(updateCollectionParams.sizeParams[0].device, 'tablet');
+	test.equal(updateCollectionParams.sizeParams[1].device, 'tablet');
+	test.equal(updateCollectionParams.sizeParams[2].device, 'tablet');
+
+	test.equal(updateCollectionParams.sizeParams[0].width, 800);
+	test.equal(updateCollectionParams.sizeParams[1].width, 800);
+	test.equal(updateCollectionParams.sizeParams[2].width, 800);
+
+	test.equal(updateCollectionParams.sizeParams[0].height, 600);
+	test.equal(updateCollectionParams.sizeParams[1].height, 600);
+	test.equal(updateCollectionParams.sizeParams[2].height, 600);
+
+	test.equal(updateCollectionParams.pixelDensityParams[0].prefix, '');
+	test.equal(updateCollectionParams.pixelDensityParams[1].prefix, '@2x');
+	test.equal(updateCollectionParams.pixelDensityParams[2].prefix, '@3x');
+
+	test.equal(updateCollectionParams.pixelDensityParams[0].multiplier, 1);
+	test.equal(updateCollectionParams.pixelDensityParams[1].multiplier, 2);
+	test.equal(updateCollectionParams.pixelDensityParams[2].multiplier, 3);
+
+	test.equal(updateCollectionParams.filenameParams[0], '1-tablet.jpg');
+	test.equal(updateCollectionParams.filenameParams[1], '1-tablet@2x.jpg');
+	test.equal(updateCollectionParams.filenameParams[2], '1-tablet@3x.jpg');
+
+	/**
+	 *	Test the params being passed into the GM function for resizing images
+	 */
+	test.equal(GM_params.sourceFilePathParams[0], 'path/to/file');
+	test.equal(GM_params.sourceFilePathParams[1], 'path/to/file');
+	test.equal(GM_params.sourceFilePathParams[2], 'path/to/file');
+
+	test.equal(GM_params.setFormatParams[0], 'jpg');
+	test.equal(GM_params.setFormatParams[1], 'jpg');
+	test.equal(GM_params.setFormatParams[2], 'jpg');
+
+	test.equal(GM_params.resizeParams[0], 800);
+	test.equal(GM_params.resizeParams[1], 1600);
+	test.equal(GM_params.resizeParams[2], 2400);
+
+	test.equal(GM_params.writeParams[0], 'path/to/file/processed/1-tablet.jpg');
+	test.equal(GM_params.writeParams[1], 'path/to/file/processed/1-tablet@2x.jpg');
+	test.equal(GM_params.writeParams[2], 'path/to/file/processed/1-tablet@3x.jpg');	
+
+	/**
+	 *	Cleanup
+	 */
+	CFConfig = CFConfig_backup;
+	ImageProcessor.GM = false;
+
+	/**
+	 *	Finish
+	 */
+	onComplete();
+
 });
 
 

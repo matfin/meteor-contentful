@@ -207,7 +207,6 @@ ImageProcessor = {
 					.setFormat(resizeParam.fileType)
 					.resize(resizeParam.size.width * resizeParam.pixelDensity.multiplier)
 					.write(destinationFilePath + destinationFileName, function(err) {
-
 						/**
 						 *	Log any errors
 						 */
