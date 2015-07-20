@@ -1,4 +1,5 @@
 Tinytest.add('Contentful - checkCFCredentails should return true if the header authorisation key matches the key stored in the contentful config file.', function(test) {
+		
 	/**
 	 *	Create clone of objects that will be modified
 	 *	and create stubs
