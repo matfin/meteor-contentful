@@ -8,8 +8,8 @@ install:
   # Install meteor
   - "curl https://install.meteor.com | /bin/sh"
   # Install spacejam
-  - "npm install -g spacejam"
+  - "npm install spacejam"
 
 # For testing meteor packages, that's all that is needed. 
 script:
-  - "spacejam test-packages ./"
+  - "node_modules/.bin/spacejam --mongo-url mongodb:// test-packages ./"
