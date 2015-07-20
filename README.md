@@ -65,7 +65,7 @@ $ meteor --settings settings.json
 
 When deploying to a production server you will need create a new environment variable called METEOR_SETTINGS and add the minified contents of the settings.json file to that, edited for your needs.
 
-```$ export METEOR_SETTINGS='{"contentful:{...}"}'
+```$ export METEOR_SETTINGS='{"contentful:{...}"}'```
 
 A useful JSON minifier can be found at [http://jsonformatter.curiousconcept.com/](http://jsonformatter.curiousconcept.com/).
 
@@ -295,6 +295,16 @@ Meteor.startup(function() {
 		});
 	}
 }
+```
+## Checking to see if it's working
+
+After putting the correct details into your settings.json file, boot the app telling Meteor where settings.json is, and the package will then start fetching the content. Please be aware that images may take a little while to appear, especially if there are a lot of them, but subsequent restarts of the app should be faster.
+
+To check and see if everything worked, run the following in your browsers web console (assuming you have published the server side collections).
+
+```
+App.collections.cf_assets.find({}).fetch();
+App.collections.cf_entries.find({}).fetch();
 ```
 
 ## Help and support

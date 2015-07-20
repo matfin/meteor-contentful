@@ -4,7 +4,8 @@
 		"authorisationHeader": "'Bearer <Your auth id>'",
 		"contentTypeHeader": "application/vnd.contentful.delivery.v1+json",
 		"spaceID": "<your space ID>",
-		"processedImageCollectionName": "ac_images",
+		"processedImageCollectionName": "my_images",
+		"callbackAuthKey": "Basic <your_callback_auth_key>",
 		"contentTypes": [
 			{
 				"name": "meaningful-name",
