@@ -1,6 +1,8 @@
 matfin:meteor-contentful
 =================
 
+[![Build Status](https://travis-ci.org/matfin/meteor-contentful.svg?branch=master)](https://travis-ci.org/matfin/meteor-contentful)
+
 ## About
 
 Contentful is an API based platform for creating and publishing content. What this means is that you use it to create your own content types (blog post with a title, text content, publish date, author etc) and then connect to their API to fetch the data formatted as JSON.
