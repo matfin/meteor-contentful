@@ -1,12 +1,15 @@
+# The language specific base vm to use for this repository
 language: node_js
+
+# The node.js version to install
 node_js: "0.12.7"
 
-install: 
-	#install meteor
-	- "curl https://install.meteor.com | /bin/sh"
-	#install spacejam
-	- "npm install -g spacejam"
+install:
+  # Install meteor
+  - "curl https://install.meteor.com | /bin/sh"
+  # Install spacejam
+  - "npm install -g spacejam"
 
-script: 
-	#run the tests on the packages
-	- "spacejam test-packages ./"
+# For testing meteor packages, that's all that is needed. 
+script:
+  - "spacejam test-packages ./"
