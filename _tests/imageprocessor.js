@@ -239,5 +239,98 @@ Tinytest.addAsync('ImageProcessor - startImageOpQueue - should set the imageOper
 
 	}, 1200);
 
+});
+
+
+Tinytest.addAsync('ImageProcessor - addImageJob - should push a job with 6 resize parameters to the processing queue given three sizes and two pixel densities.', function(test, onComplete) {
+
+	/**
+	 *	Creating stubs and backups
+	 */
+	var Q_backup = _.extend(Q);
+	var CFConfig_backup = _.clone(CFConfig);
+
+	var asset = {
+		fields: {
+			description: 'portfolio'
+		}
+	};
+
+	CFConfig = {
+		imageProcessor: {
+			pixelDensities: [
+				{
+					prefix: "",
+					multiplier: 1
+				},
+				{
+					prefix: "@2x",
+					multiplier: 2 
+				}
+			],
+			imageTypes: {
+				portfolio: {
+					fileType: 'jpg',
+					sizes: [
+						{
+							device: 'desktop',
+							width: 1024,
+							height: 768
+						},
+						{
+							device: 'tablet',
+							width: 800,
+							height: 600
+						},
+						{
+							device: 'mobile',
+							width: 320,
+							height: 240
+						}
+					]
+				}
+			}
+		}
+	};
+
+	var deferredResolvedCallCount = 0;
+
+	Q = {
+		defer: function() {
+			return {
+				resolve: function() {
+					/**
+					 *	Make sure this was called
+					 */
+					deferredResolvedCallCount++;
+				},
+				promise: {}
+			};
+		}
+	};
+
+	/**
+	 *	Run the function and then the test
+	 */
+	ImageProcessor.addImageJob(asset);
+
+	/**
+	 *	Asset should now have 6 resize parameters and one job should be added 
+	 *	to the queue. The promise should also be resolved.
+	 */
+	test.equal(asset.imageResizeParams.length, 6);
+	test.equal(ImageProcessor.imageOperationQueue.length, 1);
+	test.equal(deferredResolvedCallCount, 1);
+
+	/**
+	 *	Cleanup
+	 */
+	CFConfig = CFConfig_backup;
+	ImageProcessor.imageOperationQueue = [];
+
+	/**
+	 *	Finish
+	 */
+	onComplete();
 
 });
