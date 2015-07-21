@@ -205,6 +205,8 @@ ImageProcessor = {
 					 */
 					self.GM(sourceFilePath)
 					.setFormat(resizeParam.fileType)
+					.background('white')
+					.flatten()
 					.resize(resizeParam.size.width * resizeParam.pixelDensity.multiplier)
 					.write(destinationFilePath + destinationFileName, function(err) {
 						/**
