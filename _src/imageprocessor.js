@@ -400,9 +400,16 @@ ImageProcessor = {
 	 */
 	addImageJob: function(asset, forceOverwrite) {
 
+		/**
+		 *	Exit if asset is empty
+		 */
+		if(typeof asset === 'undefined') {
+			return;
+		}
+
 		var self 			= this,
 			deferred 		= Q.defer(),		
-			type 			= asset.fields.description,
+			type 				= asset.fields.description,
 			fileType		= CFConfig.imageProcessor.imageTypes[type].fileType,
 			sizes 			= CFConfig.imageProcessor.imageTypes[type].sizes,
 			pixelDensities	= CFConfig.imageProcessor.pixelDensities,

@@ -126,10 +126,18 @@ Tinytest.add('ImageProcessor - processImages - should call updateImagesCollectio
 		return {
 			setFormat: function() {
 				return {
-					resize: function() {
+					background: function() {
 						return {
-							write: function(blank, cb) {
-								cb();
+							flatten: function() {
+								return {
+									resize: function() {
+										return {
+											write: function(blank, cb) {
+												cb();
+											}
+										}
+									}
+								}
 							}
 						}
 					}
@@ -243,18 +251,30 @@ Tinytest.addAsync('ImageProcessor - processImages - should call GraphicsMagick a
 	/** 
 	 *	Stubbing GM chained functions and pushing in given params
 	 */
+
+	/** 
+	 *	Stubbing GM chained functions
+	 */
 	ImageProcessor.GM = function(sourceFilePath) {
 		GM_params.sourceFilePathParams.push(sourceFilePath);
 		return {
 			setFormat: function(format) {
 				GM_params.setFormatParams.push(format);
 				return {
-					resize: function(width) {
-						GM_params.resizeParams.push(width);
+					background: function(color) {
 						return {
-							write: function(filename, cb) {
-								GM_params.writeParams.push(filename);
-								cb();
+							flatten: function() {
+								return {
+									resize: function(width) {
+										GM_params.resizeParams.push(width);
+										return {
+											write: function(filename, cb) {
+												GM_params.writeParams.push(filename);
+												cb();
+											}
+										}
+									}
+								}
 							}
 						}
 					}
