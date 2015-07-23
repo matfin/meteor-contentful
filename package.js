@@ -1,6 +1,6 @@
 Package.describe({
 	name: 			'matfin:meteor-contentful',
-	version: 		'1.0.1',
+	version: 		'2.0.0',
 	summary: 		'Package to interact with the Contentful content delivery API.',
 	documentation: 	'README.md',
 	git: 'https://github.com/matfin/meteor-contentful'
@@ -16,11 +16,7 @@ Package.onUse(function(api) {
 	/**
 	 *	Exporting objects we will be using
 	 */
-	api.export('CFConfig');
 	api.export('Contentful');
-	api.export('ImageProcessor');
-	api.export('Logger');
-
 });
 
 
@@ -39,11 +35,9 @@ Package.onTest(function(api) {
 	], 'server');
 
 	/**
-	 *	Adding test specs (Server side only)
+	 *	Package test file(s)
 	 */
 	api.addFiles([
-		'_tests/contentful.js',
-		'_tests/imageprocessor.js'
 	], 'server');
 
 });
@@ -59,26 +53,15 @@ function configurePackage(api) {
 	 */
 	api.use([
 		'mongo',
-		'http',
 		'ejson',
-		'underscore',
-		'aramk:q@1.0.1_1',
 		'meteorhacks:npm@1.3.0'
 	], 'server');
 
 	/**
-	 *	Package source file(s)
-	 *
-	 *	Note: 	If you have downloaded this package from https://atmospherejs.com/
-	 *			you will need to rename settings_sample.js to settings.js and 
-	 *			plug your own configuration settings in there.
+	 *	Package source files
 	 */
 	api.addFiles([
-		'_config/settings.js',
-		'_src/utils.js',
 		'_src/contentful.js',
-		'_src/imageprocessor.js',
-		'_src/logger.js'
 	], 'server');
 
 };
