@@ -4,6 +4,7 @@ MeteorContentful = {
 	/**
 	 *	Node dependencies
 	 */
+	Fiber: Npm.require('fibers'),
 	Contentful: Npm.require('contentful'),
 	BodyParser: Npm.require('body-parser'),
 	Connect: Npm.require('connect'),
@@ -53,11 +54,14 @@ MeteorContentful = {
 	 *	Fetch and update all content types to the collection
 	 */
 	updateContentTypes: function() {
-		var contentTypes = this.client.contentTypes().then(function(res, err) {
-			
-
-
-		});
+		this.client.contentTypes().then((function(data, err) {
+			this.Fiber(function() {
+				var result = data.map(function(item) {
+					Collections.updateToCollection('contentTypes', item);
+				});
+				console.log('After running update ');
+			}).run();
+		}).bind(this));
 	}
 
 };

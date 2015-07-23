@@ -7,7 +7,6 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-
 	/**
 	 *	Configure the package
 	 */
@@ -17,11 +16,11 @@ Package.onUse(function(api) {
 	 *	Exporting objects we will be using
 	 */
 	api.export('MeteorContentful');
+	api.export('Collections');
 });
 
 
 Package.onTest(function(api) {
-
 	/**
 	 *	Configure the package
 	 */
@@ -41,7 +40,6 @@ Package.onTest(function(api) {
 		'collections_tests.js',
 		'meteor_contentful_tests.js'
 	], 'server');
-
 });
 
 function configurePackage(api) {
@@ -55,7 +53,6 @@ function configurePackage(api) {
 	 */
 	api.use([
 		'mongo',
-		'ejson',
 	], 'server');
 
 	Npm.depends({
@@ -70,6 +67,6 @@ function configurePackage(api) {
 	 */
 	api.addFiles([
 		'_src/meteor_contentful.js',
+		'_src/collections.js'
 	], 'server');
-
 };
