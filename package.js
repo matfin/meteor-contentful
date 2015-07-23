@@ -16,7 +16,7 @@ Package.onUse(function(api) {
 	/**
 	 *	Exporting objects we will be using
 	 */
-	api.export('Contentful');
+	api.export('MeteorContentful');
 });
 
 
@@ -38,6 +38,8 @@ Package.onTest(function(api) {
 	 *	Package test file(s)
 	 */
 	api.addFiles([
+		'collections_tests.js',
+		'meteor_contentful_tests.js'
 	], 'server');
 
 });
@@ -54,14 +56,20 @@ function configurePackage(api) {
 	api.use([
 		'mongo',
 		'ejson',
-		'meteorhacks:npm@1.3.0'
 	], 'server');
+
+	Npm.depends({
+		'contentful': '1.1.1',
+		'body-parser': '1.13.2',
+		'gm': '1.18.1',
+		'connect': '3.4.0'
+	});
 
 	/**
 	 *	Package source files
 	 */
 	api.addFiles([
-		'_src/contentful.js',
+		'_src/meteor_contentful.js',
 	], 'server');
 
 };
