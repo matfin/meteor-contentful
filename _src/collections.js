@@ -10,16 +10,16 @@ Collections = {
 	/**
 	 *	Collections
 	 */
-	contentTypes: new Mongo.Collection('CFContentTypes'),
-	assets: new Mongo.Collection('CFAssets'),
-	entries: new Mongo.Collection('CFEntries'),
+	contentTypes: new Mongo.Collection('contentTypes'),
+	assets: new Mongo.Collection('assets'),
+	entries: new Mongo.Collection('entries'),
 
 	/**	
 	 *	Update collection depending on type
 	 */
 	updateToCollection: function(collection, item) {
 		var collection = this[collection],
-				fiber = this.Fiber.current,
+				current = this.Fiber.current,
 				result;
 
 		if(typeof collection === 'undefined') {
@@ -28,10 +28,11 @@ Collections = {
 				message: 'Could not find the collection named ' + collection
 			};
 		}
+
 		collection.update({'sys.id': item.sys.id}, item, {upsert: true}, function() {
-			fiber.run('Update successful');
+			current.run();
 		});
-	
+
 		var res = this.Fiber.yield();
 		return res;
 	}

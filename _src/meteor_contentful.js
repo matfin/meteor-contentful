@@ -53,16 +53,62 @@ MeteorContentful = {
 	/**
 	 *	Fetch and update all content types to the collection
 	 */
-	updateContentTypes: function() {
+	fetchContentTypes: function() {
+		var	current = this.Fiber.current,
+				res;
+
 		this.client.contentTypes().then((function(data, err) {
 			this.Fiber(function() {
-				var result = data.map(function(item) {
+				data.map(function(item) {
 					Collections.updateToCollection('contentTypes', item);
 				});
-				console.log('After running update ');
+				current.run();
 			}).run();
 		}).bind(this));
-	}
+
+		res = this.Fiber.yield();
+		return this;
+	},
+
+	/**
+	 *	Fetch and update all entries
+	 */
+	fetchEntries: function() {
+		var current = this.Fiber.current,
+				res;
+
+		this.client.entries().then((function(data, err) {
+			this.Fiber(function() {
+				data.map(function(item) {
+					Collections.updateToCollection('entries', item);
+				});
+				current.run();
+			}).run();
+		}).bind(this));
+
+		res = this.Fiber.yield();
+		return this;
+	},
+
+	/**
+	 *	Fetch and update all assets
+	 */
+	fetchAssets: function() {
+		var current = this.Fiber.current,
+				res;
+
+		this.client.assets().then((function(data, err) {
+			this.Fiber(function() {
+				data.map(function(item) {
+					Collections.updateToCollection('assets', item);
+				});
+				current.run();
+			}).run();
+		}).bind(this));
+
+		res = this.Fiber.yield();
+		return this;
+	},
 
 };
 
