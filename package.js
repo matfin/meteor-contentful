@@ -57,9 +57,9 @@ function configurePackage(api) {
 
 	Npm.depends({
 		'contentful': '1.1.1',
+		'express': '4.13.1',
 		'body-parser': '1.13.2',
-		'gm': '1.18.1',
-		'connect': '3.4.0'
+		'gm': '1.18.1'
 	});
 
 	/**

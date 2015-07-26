@@ -6,19 +6,13 @@ MeteorContentful = {
 	 */
 	Fiber: Npm.require('fibers'),
 	Contentful: Npm.require('contentful'),
-	BodyParser: Npm.require('body-parser'),
-	Connect: Npm.require('connect'),
 
 	/**
 	 *	Object props
 	 */
 	settings: Meteor.settings.contentful,
 	client: false,
-
-	/**
-	 *	Simepl logging
-	 */
-	log: console.log.bind(console),
+	callbackPort: false,
 
 	/**
 	 *	Check settings exists
@@ -44,7 +38,8 @@ MeteorContentful = {
 			space: this.settings.space,
 			accessToken: this.settings.accessToken,
 			secure: true,
-			host: this.settings.host
+			host: this.settings.host,
+			callbackPort: this.settings.callbackPort
 		});
 
 		return this;
@@ -53,7 +48,7 @@ MeteorContentful = {
 	/**
 	 *	Fetch and update all content types to the collection
 	 */
-	fetchContentTypes: function() {
+	fetchContentTypes: function(cb) {
 		var	current = this.Fiber.current,
 				res;
 
@@ -73,7 +68,7 @@ MeteorContentful = {
 	/**
 	 *	Fetch and update all entries
 	 */
-	fetchEntries: function() {
+	fetchEntries: function(cb) {
 		var current = this.Fiber.current,
 				res;
 
@@ -93,7 +88,7 @@ MeteorContentful = {
 	/**
 	 *	Fetch and update all assets
 	 */
-	fetchAssets: function() {
+	fetchAssets: function(cb) {
 		var current = this.Fiber.current,
 				res;
 
@@ -109,6 +104,27 @@ MeteorContentful = {
 		res = this.Fiber.yield();
 		return this;
 	},
+
+	/**
+	 *	Listen for incoming changes
+	 */
+	listen: function() {
+		var express = Npm.require('express'),
+				bodyparser = Npm.require('body-parser'),
+				app = express();
+
+		app.use(bodyparser.json({type: 'application/vnd.contentful.delivery.v1+json'}));
+		app.listen(this.settings.callbackPort);
+		
+		app.post('/hooks/contentful', function(req, res) {
+			
+			console.log(req.body);
+
+
+			res.status(200).end();
+		});
+
+	}
 
 };
 
