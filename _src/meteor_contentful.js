@@ -106,24 +106,60 @@ MeteorContentful = {
 	},
 
 	/**
+	 *	Remap incoming updates
+	 */
+	remapUpdate: function() {
+
+	},
+
+	/**
 	 *	Listen for incoming changes
 	 */
 	listen: function() {
 		var express = Npm.require('express'),
 				bodyparser = Npm.require('body-parser'),
-				app = express();
+				app = express(),
+				item;
 
-		app.use(bodyparser.json({type: 'application/vnd.contentful.delivery.v1+json'}));
+		app.use(bodyparser.json({type: 'application/vnd.contentful.management.v1+json'}));
+		app.use(bodyparser.json());
 		app.listen(this.settings.callbackPort);
 		
-		app.post('/hooks/contentful', function(req, res) {
-			
-			console.log(req.body);
+		app.post('/hooks/contentful', (function(req, res) {
 
+			item = req.body;
+			
+			this.Fiber(function(){
+				switch(req.headers['x-contentful-topic']) {
+					case 'ContentManagement.Entry.publish': {
+						console.log('Update an entry');
+						break;
+					}
+					case 'ContentManagement.Entry.unpublish': {
+						Collections.removeFromCollection('entries', item);
+						break;
+					}
+					case 'ContentManagement.Asset.publish': {
+						console.log('Update an asset');
+						break;
+					}
+					case 'ContentManagement.Asset.unpublish': {
+						Collections.removeFromCollection('assets', item);
+						break;
+					}
+				}
+			}).run();
+
+			//ContentManagement.Entry.publish
+			//ContentManagement.Entry.unpublish
+			//ContentManagement.Asset.publish
+			//ContentManagement.Asset.unpublish
+
+			// console.log(req.headers);
+			// console.log(req.body);
 
 			res.status(200).end();
-		});
-
+		}).bind(this));
 	}
 
 };

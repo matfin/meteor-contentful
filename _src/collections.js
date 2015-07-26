@@ -20,7 +20,7 @@ Collections = {
 	updateToCollection: function(collection, item) {
 		var collection = this[collection],
 				current = this.Fiber.current,
-				result;
+				res;
 
 		if(typeof collection === 'undefined') {
 			throw {
@@ -33,7 +33,29 @@ Collections = {
 			current.run();
 		});
 
-		var res = this.Fiber.yield();
+		res = this.Fiber.yield();
+		return res;
+	},
+
+	/**
+	 *	Remove an item from the collection
+	 */
+	removeFromCollection: function(collection, item) {
+		var collection = this[collection],
+				current = this.Fiber.current,
+				res;
+
+		if(typeof collection === 'undefined') {
+			throw {
+				type: 'error',
+				message: 'Could not find the collection named ' + collection
+			};
+		}
+		collection.remove({'sys.id': item.sys.id}, function() {
+			current.run();
+		});
+
+		res = this.Fiber.yield();
 		return res;
 	}
 
