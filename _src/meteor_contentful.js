@@ -124,6 +124,13 @@ MeteorContentful = {
 	},
 
 	/**
+	 *	Function that checks the headers of incoming POST requests
+	 */
+	authenticateCallback: function(request) {
+		return request.headers.authorization === 'Bearer ' + this.settings.callbackToken;
+	},
+
+	/**
 	 *	Listen for incoming changes
 	 */
 	listen: function() {
@@ -137,6 +144,12 @@ MeteorContentful = {
 		app.listen(this.settings.callbackPort);
 		
 		app.post('/hooks/contentful', (function(req, res) {
+
+			if(!this.authenticateCallback(req)) {
+				console.log('Not authenticated!');
+				res.status(403).end();
+				return;
+			}
 
 			item = req.body;
 			
