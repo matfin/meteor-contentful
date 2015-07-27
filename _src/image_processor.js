@@ -41,13 +41,12 @@ ImageProcessor = {
 	/**
 	 *	Download the source image from Contentful given an asset
 	 */
-	downloadAsset: function(asset) {
+	downloadAsset: function(url) {
 		var current = this.Fiber.current,
 				http = this.HTTP,
-				url = asset.fields.file.url,
 				request,
 				result,
-				data;
+				data = '';
 
 		request = http.get(url, function(response) {
 
@@ -85,10 +84,9 @@ ImageProcessor = {
 			response.on('end', function() {
 				current.run({
 					then: function(cb) {
-						cb(data, asset);
+						cb(data);
 						return {
-							fail: function() {
-							}
+							fail: function() {}
 						}
 					}
 				})
@@ -109,6 +107,51 @@ ImageProcessor = {
 
 		result = this.Fiber.yield();
 		return result;
+	},
+
+	/**
+	 *	Save image data to the filesystem
+	 */
+	save: function(filename, data) {
+		var current = this.Fiber.current,
+				fs = this.FS,
+				fullpath = this.settings.source + '/' + filename,
+				result;
+
+		fs.writeFile(fullpath, data, {encoding: 'binary'}, function(err) {
+			if(err) {
+				current.run({
+					then: function() {
+						return {
+							fail: function(cb) {
+								cb({
+									message: 'Failed to save file ' + fullpath,
+									data: err
+								});
+							}
+						}
+					}
+				});
+				return;
+			}
+			else {
+				current.run({
+					then: function(cb) {
+						cb({
+							message: 'success',
+							path: fullpath
+						});
+						return {
+							fail: function(){}
+						}
+					}
+				});
+			}
+		});
+
+		result = this.Fiber.yield();
+		return result;
+
 	},
 
 	/**
