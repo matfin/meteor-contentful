@@ -13,6 +13,7 @@ Collections = {
 	contentTypes: new Mongo.Collection('contentTypes'),
 	assets: new Mongo.Collection('assets'),
 	entries: new Mongo.Collection('entries'),
+	images: new Mongo.Collection('images'),
 
 	/**	
 	 *	Update collection depending on type

@@ -17,6 +17,7 @@ Package.onUse(function(api) {
 	 */
 	api.export('MeteorContentful');
 	api.export('Collections');
+	api.export('ImageProcessor');
 });
 
 
@@ -38,7 +39,8 @@ Package.onTest(function(api) {
 	 */
 	api.addFiles([
 		'collections_tests.js',
-		'meteor_contentful_tests.js'
+		'meteor_contentful_tests.js',
+		'image_processor_tests.js'
 	], 'server');
 });
 
@@ -67,6 +69,7 @@ function configurePackage(api) {
 	 */
 	api.addFiles([
 		'_src/meteor_contentful.js',
-		'_src/collections.js'
+		'_src/collections.js',
+		'_src/image_processor.js'
 	], 'server');
 };

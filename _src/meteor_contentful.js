@@ -18,19 +18,17 @@ MeteorContentful = {
 	 *	Check settings exists
 	 */
 	hasSettings: function() {
-		if(typeof this.settings === 'undefined') {
-			return false;
-		}
+		return typeof this.settings !== 'undefined';
 	},
 
 	/**
 	 *	Start the client
 	 */
 	start: function() {
-		if(!this.hasSettings) {
+		if(!this.hasSettings()) {
 			throw {
 				type: 'error',
-				message: 'settings.json not correctly set up'
+				message: 'settings.json for ContentFul not correctly set up.'
 			};
 		}
 
@@ -127,7 +125,7 @@ MeteorContentful = {
 	 *	Function that checks the headers of incoming POST requests
 	 */
 	authenticateCallback: function(request) {
-		return request.headers.authorization === 'Bearer ' + this.settings.callbackToken;
+		return request.headers.authorization === 'Bearer ' + settings.callbackToken;
 	},
 
 	/**
