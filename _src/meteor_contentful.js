@@ -125,7 +125,7 @@ MeteorContentful = {
 	 *	Function that checks the headers of incoming POST requests
 	 */
 	authenticateCallback: function(request) {
-		return request.headers.authorization === 'Bearer ' + settings.callbackToken;
+		return request.headers.authorization === 'Basic ' + this.settings.callbackToken;
 	},
 
 	/**

@@ -7,12 +7,15 @@ ImageProcessor = {
 	 */
 	Fiber: Npm.require('fibers'),
 	GM: Npm.require('gm'),
+	HTTP: Npm.require('http'),
 	FS: Npm.require('fs'),
 
 	/**
 	 *	Object props
 	 */
 	settings: Meteor.settings.imageprocessor,
+	queue: [],
+	running: false,
 
 	/**
 	 *	Check settings exist
@@ -33,6 +36,83 @@ ImageProcessor = {
 		}
 
 		this.observe();
+	},
+
+	/**
+	 *	Download the source image from Contentful given an asset
+	 */
+	download: function(url) {
+		var current = this.Fiber.current,
+				http = this.HTTP,
+				url = 'http:' + url,
+				request,
+				result,
+				data;
+
+		request = http.get(url, function(response) {
+
+			response.setEncoding('binary');
+
+			if(response.statusCode < 200 || response.statusCode > 299) {
+				current.run({
+					then: function(cb) {
+						cb(null);
+						return {
+							fail: function(cb) {
+								cb({message: 'Failed to fetch resource with ' + url + '. Status: ' + response.statusCode});
+							}	
+						}
+					}
+				});
+				return;
+			}
+
+			response.on('data', function(chunk) {
+				data += chunk;
+			});
+
+			response.on('error', function() {
+				current.run({
+					then: function(cb) {
+						cb(null);
+						return {
+							fail: function(cb) {
+								cb({message: 'Response stream failure for url: ' + url});
+							}	
+						}
+					}
+				});
+			});
+
+			response.on('end', function() {
+				current.run({
+					then: function(cb) {
+						cb(data);
+						return {
+							fail: function(cb) {
+								cb(null);
+							}
+						}
+					}
+				})
+			});
+		});
+
+		request.on('error', function() {
+			current.run({
+				then: function(cb) {
+					cb(null);
+					return {
+						fail: function(cb) {
+							cb({message: 'Failed with status: ' + response.statusCode});
+						}	
+					}
+				}
+			});
+		});
+
+		result = this.Fiber.yield();
+		return result;
 	},
 
 	/**
