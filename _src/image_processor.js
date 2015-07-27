@@ -41,10 +41,10 @@ ImageProcessor = {
 	/**
 	 *	Download the source image from Contentful given an asset
 	 */
-	download: function(url) {
+	downloadAsset: function(asset) {
 		var current = this.Fiber.current,
 				http = this.HTTP,
-				url = 'http:' + url,
+				url = asset.fields.file.url,
 				request,
 				result,
 				data;
@@ -55,8 +55,7 @@ ImageProcessor = {
 
 			if(response.statusCode < 200 || response.statusCode > 299) {
 				current.run({
-					then: function(cb) {
-						cb(null);
+					then: function() {
 						return {
 							fail: function(cb) {
 								cb({message: 'Failed to fetch resource with ' + url + '. Status: ' + response.statusCode});
@@ -73,8 +72,7 @@ ImageProcessor = {
 
 			response.on('error', function() {
 				current.run({
-					then: function(cb) {
-						cb(null);
+					then: function() {
 						return {
 							fail: function(cb) {
 								cb({message: 'Response stream failure for url: ' + url});
@@ -87,10 +85,9 @@ ImageProcessor = {
 			response.on('end', function() {
 				current.run({
 					then: function(cb) {
-						cb(data);
+						cb(data, asset);
 						return {
-							fail: function(cb) {
-								cb(null);
+							fail: function() {
 							}
 						}
 					}
@@ -101,7 +98,6 @@ ImageProcessor = {
 		request.on('error', function() {
 			current.run({
 				then: function(cb) {
-					cb(null);
 					return {
 						fail: function(cb) {
 							cb({message: 'Failed with status: ' + response.statusCode});
