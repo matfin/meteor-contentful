@@ -152,7 +152,8 @@ MeteorContentful = {
 						break;
 					}
 					case 'ContentManagement.Asset.publish': {
-						console.log('Update an asset');
+						item = this.remappedUpdate(item);
+						Collections.updateToCollection('assets', item);
 						break;
 					}
 					case 'ContentManagement.Asset.unpublish': {
