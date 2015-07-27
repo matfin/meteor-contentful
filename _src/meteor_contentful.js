@@ -108,8 +108,19 @@ MeteorContentful = {
 	/**
 	 *	Remap incoming updates
 	 */
-	remapUpdate: function() {
+	remappedUpdate: function(item) {
+		var fields = item.fields,
+				fields_keys = Object.keys(fields),
+				nested_object,
+				nested_object_keys;
 
+		fields_keys.forEach(function(key) {
+			nested_object = fields[key];
+			nested_object_keys = Object.keys(nested_object);
+			fields[key] = nested_object[nested_object_keys[0]];
+		});
+
+		return item;
 	},
 
 	/**
@@ -129,10 +140,11 @@ MeteorContentful = {
 
 			item = req.body;
 			
-			this.Fiber(function(){
+			this.Fiber((function(){
 				switch(req.headers['x-contentful-topic']) {
 					case 'ContentManagement.Entry.publish': {
-						console.log('Update an entry');
+						console.log(this.remappedUpdate(item));
+						//Collections.updateToCollection('entries', item);
 						break;
 					}
 					case 'ContentManagement.Entry.unpublish': {
@@ -148,15 +160,7 @@ MeteorContentful = {
 						break;
 					}
 				}
-			}).run();
-
-			//ContentManagement.Entry.publish
-			//ContentManagement.Entry.unpublish
-			//ContentManagement.Asset.publish
-			//ContentManagement.Asset.unpublish
-
-			// console.log(req.headers);
-			// console.log(req.body);
+			}).bind(this)).run();
 
 			res.status(200).end();
 		}).bind(this));
