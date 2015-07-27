@@ -143,8 +143,8 @@ MeteorContentful = {
 			this.Fiber((function(){
 				switch(req.headers['x-contentful-topic']) {
 					case 'ContentManagement.Entry.publish': {
-						console.log(this.remappedUpdate(item));
-						//Collections.updateToCollection('entries', item);
+						item = this.remappedUpdate(item);
+						Collections.updateToCollection('entries', item);
 						break;
 					}
 					case 'ContentManagement.Entry.unpublish': {
