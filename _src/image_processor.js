@@ -6,16 +6,13 @@ ImageProcessor = {
 	 *	Node dependencies
 	 */
 	Fiber: Npm.require('fibers'),
-	GM: Npm.require('gm'),
-	HTTP: Npm.require('http'),
-	FS: Npm.require('fs'),
 
 	/**
 	 *	Object props
 	 */
 	settings: Meteor.settings.imageprocessor,
 	queue: [],
-	running: false,
+	isrunning: false,
 
 	/**
 	 *	Check settings exist
@@ -25,9 +22,118 @@ ImageProcessor = {
 	},
 
 	/**
-	 *	Start 
+	 *	Check if a file exists
 	 */
+	exists: function(fullpath) {
+		var current = this.Fiber.current,
+				fs = This.FS,
+				result;
+
+		fs.open(fullPath, 'r', function(err, fp) {
+			if(err) {
+				current.run(false);
+			}
+			else {
+				current.run(true);
+			}
+		});
+
+		result = this.Fiber.yield();
+		return result;
+	},
+
 	start: function() {
+
+		if(this.isrunning) return;
+
+		var run = function() {
+			this.isrunning = true;
+			if(this.queue.length === 0) {
+				this.isrunning = false;
+				return;
+			}
+			this.process(this.queue[0], (function(status) {
+				this.queue = this.queue.slice(1);
+				run();
+			}).bind(this));
+		}.bind(this);
+
+		run();
+	},
+
+	process: function(job, cb) {
+		
+		var asset = job.asset,
+				settings = this.settings,
+				category = settings.categories[asset.fields.description],
+				source = 'http:' + asset.fields.file.url,
+				request = Npm.require('request'),
+				gm = Npm.require('gm'),
+				stream,
+				outputs,
+				background,
+				resize,
+				output;
+
+		if(typeof category === 'undefined') {
+			cb({
+				status: 'error',
+				message: 'Sizes could not be determined due to missing category'
+			});
+			return;
+		}
+
+		background = category.background;
+		outputs = this.outputs(asset, category);
+
+		resize = function() {
+			if(outputs.length === 0) {
+				cb('done');
+				return;
+			}
+
+			output = outputs[0];
+			stream = request(source);
+
+			gm(stream)
+			.setFormat(output.filetype)
+			.resize(output.width)
+			.write(settings.destination + '/' + output.filename, function(err) {
+				outputs = outputs.slice(1);
+				console.log(outputs.length);
+				resize();
+			});
+		};
+		
+		resize();
+
+	},
+
+	outputs: function(asset, category) {
+		var sizes = category.sizes,
+				filetype = category.filetype,
+				id = asset.sys.id,
+				densities = ['', '@2x', '@3x'],
+				outputs = [];
+
+		sizes.forEach(function(size) {
+			densities.forEach(function(density, index) {
+				outputs.push({
+					filename: id + '-' + size.device + density + '.' + filetype,
+					width: size.width * (index + 1),
+					filetype: filetype
+				});
+			});
+		});
+		
+		return outputs;
+	},
+
+	/**
+	 *	Observe changes to the assets collection and run callbacks
+	 */
+	observe: function() {
+
 		if(!this.hasSettings()) {
 			throw {
 				type: 'error',
@@ -35,157 +141,44 @@ ImageProcessor = {
 			}
 		}
 
-		this.observe();
-	},
-
-	/**
-	 *	Download the source image from Contentful given an asset
-	 */
-	downloadAsset: function(url) {
-		var current = this.Fiber.current,
-				http = this.HTTP,
-				request,
-				result,
-				data = '';
-
-		request = http.get(url, function(response) {
-
-			response.setEncoding('binary');
-
-			if(response.statusCode < 200 || response.statusCode > 299) {
-				current.run({
-					then: function() {
-						return {
-							fail: function(cb) {
-								cb({message: 'Failed to fetch resource with ' + url + '. Status: ' + response.statusCode});
-							}	
-						}
-					}
-				});
-				return;
-			}
-
-			response.on('data', function(chunk) {
-				data += chunk;
-			});
-
-			response.on('error', function() {
-				current.run({
-					then: function() {
-						return {
-							fail: function(cb) {
-								cb({message: 'Response stream failure for url: ' + url});
-							}	
-						}
-					}
-				});
-			});
-
-			response.on('end', function() {
-				current.run({
-					then: function(cb) {
-						cb(data);
-						return {
-							fail: function() {}
-						}
-					}
-				})
-			});
-		});
-
-		request.on('error', function() {
-			current.run({
-				then: function(cb) {
-					return {
-						fail: function(cb) {
-							cb({message: 'Failed with status: ' + response.statusCode});
-						}	
-					}
-				}
-			});
-		});
-
-		result = this.Fiber.yield();
-		return result;
-	},
-
-	/**
-	 *	Save image data to the filesystem
-	 */
-	save: function(filename, data) {
-		var current = this.Fiber.current,
-				fs = this.FS,
-				fullpath = this.settings.source + '/' + filename,
-				result;
-
-		fs.writeFile(fullpath, data, {encoding: 'binary'}, function(err) {
-			if(err) {
-				current.run({
-					then: function() {
-						return {
-							fail: function(cb) {
-								cb({
-									message: 'Failed to save file ' + fullpath,
-									data: err
-								});
-							}
-						}
-					}
-				});
-				return;
-			}
-			else {
-				current.run({
-					then: function(cb) {
-						cb({
-							message: 'success',
-							path: fullpath
-						});
-						return {
-							fail: function(){}
-						}
-					}
-				});
-			}
-		});
-
-		result = this.Fiber.yield();
-		return result;
-
-	},
-
-	/**
-	 *	Observe changes to the assets collection and run callbacks
-	 */
-	observe: function() {
 		this.Fiber((function() {
 			Collections.assets.find({}).observeChanges({
-				added: this.assetAdded,
-				changed: this.assetChanged,
-				removed: this.assetRemoved
+				added: this.assetAdded.bind(this),
+				changed: this.assetChanged.bind(this),
+				removed: this.assetRemoved.bind(this)
 			});
-		}).bind(this)).run();		
+		}).bind(this)).run();
 	},
 
 	/**
 	 *	When an asset has been added
 	 */
 	assetAdded: function(id, asset) {
-		console.log('Asset added: ', id);
+		this.queue.push({
+			asset: asset,
+			task: 'create'
+		});
+		this.start();
 	},
 
 	/**
 	 *	When an asset has been changed
 	 */
 	assetChanged: function(id, asset) {
-		console.log('Asset changed: ', id);
+		this.queue.push({
+			asset: asset,
+			task: 'overwrite'
+		});
+		this.start();
 	},
 
 	/**
 	 *	When an asset has been removed
 	 */
 	assetRemoved: function(id, asset) {
-		console.log('Asset removed: ', id);
+		this.queue.push({
+			asset: asset,
+			task: 'delete'
+		});
 	}
-
 };

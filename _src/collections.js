@@ -30,8 +30,8 @@ Collections = {
 			};
 		}
 
-		collection.update({'sys.id': item.sys.id}, item, {upsert: true}, function() {
-			current.run();
+		collection.update({'sys.id': item.sys.id}, item, {upsert: true}, function(err, res) {
+			current.run({error: err, result: res});
 		});
 
 		res = this.Fiber.yield();
@@ -59,5 +59,4 @@ Collections = {
 		res = this.Fiber.yield();
 		return res;
 	}
-
-}
+};

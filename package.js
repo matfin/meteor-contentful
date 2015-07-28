@@ -61,7 +61,8 @@ function configurePackage(api) {
 		'contentful': '1.1.1',
 		'express': '4.13.1',
 		'body-parser': '1.13.2',
-		'gm': '1.18.1'
+		'gm': '1.18.1',
+		'request': '2.60.0'
 	});
 
 	/**
