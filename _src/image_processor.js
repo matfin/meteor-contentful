@@ -42,23 +42,18 @@ ImageProcessor = {
 		return result;
 	},
 
-	start: function() {
+	run: function() {
+		if(this.queue.length === 0 || this.isrunning) {
+			return;
+		}
 
-		if(this.isrunning) return;
+		this.isrunning = true;
 
-		var run = function() {
-			this.isrunning = true;
-			if(this.queue.length === 0) {
-				this.isrunning = false;
-				return;
-			}
-			this.process(this.queue[0], (function(status) {
-				this.queue = this.queue.slice(1);
-				run();
-			}).bind(this));
-		}.bind(this);
-
-		run();
+		this.process(this.queue[0], (function() {
+			this.queue = this.queue.slice(1);
+			this.isrunning = false;
+			this.run();
+		}).bind(this));
 	},
 
 	process: function(job, cb) {
@@ -93,7 +88,9 @@ ImageProcessor = {
 			}
 
 			output = outputs[0];
-			stream = request(source);
+			stream = request(source, function(req, res, body) {
+				console.log('Got source' + typeof body);
+			});
 
 			gm(stream)
 			.setFormat(output.filetype)
@@ -158,7 +155,7 @@ ImageProcessor = {
 			asset: asset,
 			task: 'create'
 		});
-		this.start();
+		this.run();
 	},
 
 	/**
@@ -169,7 +166,7 @@ ImageProcessor = {
 			asset: asset,
 			task: 'overwrite'
 		});
-		this.start();
+		this.run();
 	},
 
 	/**
