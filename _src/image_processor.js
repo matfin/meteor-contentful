@@ -6,6 +6,8 @@ ImageProcessor = {
 	 *	Node dependencies
 	 */
 	Fiber: Npm.require('fibers'),
+	request: Npm.require('request'),
+	gm: Npm.require('gm'),
 
 	/**
 	 *	Object props
@@ -42,68 +44,81 @@ ImageProcessor = {
 		return result;
 	},
 
+	/**
+	 *	Recursively act on items in the queue, sequentially processing each one
+	 */
 	run: function() {
+		var job,
+				action;
+
 		if(this.queue.length === 0 || this.isrunning) {
 			return;
 		}
-
+		
 		this.isrunning = true;
-
-		this.process(this.queue[0], (function() {
-			this.queue = this.queue.slice(1);
-			this.isrunning = false;
-			this.run();
-		}).bind(this));
+		job = this.queue[0];
+		switch(job.task) {
+			case 'create': 
+				action = this.generate.bind(this, job, false);
+				break;
+			case 'update':
+				action = this.generate.bind(this, job, true);
+				break;
+			case 'delete': 
+				action = this.remove.bind(this, job);
+				break;
+		}
+		
+		action();
+		this.queue = this.queue.slice(1);
+		this.isrunning = false;
+		this.run();
 	},
 
-	process: function(job, cb) {
-		
-		var asset = job.asset,
+	generate: function(job, overwrite) {
+		var current = this.Fiber.current,
 				settings = this.settings,
-				category = settings.categories[asset.fields.description],
+				asset = job.asset,
 				source = 'http:' + asset.fields.file.url,
-				request = Npm.require('request'),
-				gm = Npm.require('gm'),
-				stream,
-				outputs,
-				background,
-				resize,
-				output;
+				category = settings.categories[asset.fields.description],
+				result;
 
-		if(typeof category === 'undefined') {
-			cb({
-				status: 'error',
-				message: 'Sizes could not be determined due to missing category'
-			});
+		job.queue = this.outputs(asset, category);
+
+		this.request({url: source, encoding: null}, function(err, response, body) {
+			if(err) {
+				current.run({ok: false});
+			}
+			else {
+				job.stream = body;
+				this.save(job, function() {
+					console.log('It ran!');
+					current.run({ok: true});
+				});
+			}
+		}.bind(this));
+
+		result = this.Fiber.yield();
+		return result;
+	},
+
+	save: function(job, callback) {
+		if(job.queue.length === 0) {
+			callback();
 			return;
 		}
 
-		background = category.background;
-		outputs = this.outputs(asset, category);
-
-		resize = function() {
-			if(outputs.length === 0) {
-				cb('done');
-				return;
-			}
-
-			output = outputs[0];
-			stream = request(source, function(req, res, body) {
-				console.log('Got source' + typeof body);
-			});
-
-			gm(stream)
-			.setFormat(output.filetype)
-			.resize(output.width)
-			.write(settings.destination + '/' + output.filename, function(err) {
-				outputs = outputs.slice(1);
-				console.log(outputs.length);
-				resize();
-			});
-		};
+		var process = job.queue[0],
+				settings = this.settings,
+				stream = job.stream;
 		
-		resize();
-
+		this.gm(stream)
+		.setFormat(process.filetype)
+		.resize(process.width)
+		.write(settings.destination + '/' + process.filename, function(err) {
+			job.queue = job.queue.slice(1);
+			this.save(job, callback);
+		}.bind(this));		
 	},
 
 	outputs: function(asset, category) {
