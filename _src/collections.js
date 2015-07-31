@@ -21,6 +21,9 @@ Collections = {
 	updateToCollection: function(collection, item) {
 		var collection = this[collection],
 				current = this.Fiber.current,
+				now = new Date().getTime(),
+				selector = {'sys\uff0eid': item.sys.id},
+				modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
 				res;
 
 		if(typeof collection === 'undefined') {
@@ -30,7 +33,8 @@ Collections = {
 			};
 		}
 
-		collection.update({'sys.id': item.sys.id}, item, {upsert: true}, function(err, res) {
+		collection.update(selector, modifier, {upsert: true}, function(err, res) {
+			console.log(err, res);
 			current.run({error: err, result: res});
 		});
 

@@ -92,7 +92,6 @@ ImageProcessor = {
 			else {
 				job.stream = body;
 				this.save(job, function() {
-					console.log('It ran!');
 					current.run({ok: true});
 				});
 			}
@@ -102,6 +101,9 @@ ImageProcessor = {
 		return result;
 	},
 
+	/**
+	 *	Use GM to resize and write file based on a job. This gets called recursively.
+	 */
 	save: function(job, callback) {
 		if(job.queue.length === 0) {
 			callback();
@@ -145,14 +147,6 @@ ImageProcessor = {
 	 *	Observe changes to the assets collection and run callbacks
 	 */
 	observe: function() {
-
-		if(!this.hasSettings()) {
-			throw {
-				type: 'error',
-				message: 'settings.json for ImageProcessor not set up.'
-			}
-		}
-
 		this.Fiber((function() {
 			Collections.assets.find({}).observeChanges({
 				added: this.assetAdded.bind(this),
@@ -166,22 +160,28 @@ ImageProcessor = {
 	 *	When an asset has been added
 	 */
 	assetAdded: function(id, asset) {
+
+		console.log('Was this added???');
+
 		this.queue.push({
 			asset: asset,
 			task: 'create'
 		});
-		this.run();
+		//this.run();
 	},
 
 	/**
 	 *	When an asset has been changed
 	 */
 	assetChanged: function(id, asset) {
+
+		console.log('Was this changed???');
+
 		this.queue.push({
 			asset: asset,
 			task: 'overwrite'
 		});
-		this.run();
+		//this.run();
 	},
 
 	/**
