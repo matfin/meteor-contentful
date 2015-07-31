@@ -8,6 +8,7 @@ ImageProcessor = {
 	Fiber: Npm.require('fibers'),
 	request: Npm.require('request'),
 	gm: Npm.require('gm'),
+	fs: Npm.require('fs'),
 
 	/**
 	 *	Object props
@@ -38,12 +39,10 @@ ImageProcessor = {
 		job = this.queue[0];
 		switch(job.task) {
 			case 'create': 
-				action = this.generate.bind(this, job, false);
-				break;
-			case 'update':
-				action = this.generate.bind(this, job, true);
+				action = this.generate.bind(this, job);
 				break;
 			case 'delete': 
+				console.log('We need to delete something!');
 				action = this.remove.bind(this, job);
 				break;
 		}
@@ -54,7 +53,32 @@ ImageProcessor = {
 		this.run();
 	},
 
-	generate: function(job, overwrite) {
+	/** 
+	 *	Remove file given an image asset has been deleted.
+	 */
+	remove: function(job) {
+		var fs = this.fs,
+				id = job.id,
+				path = this.settings.directory,
+				files;
+
+		console.log('Find and remove with ID: ', id);
+
+		// fs.readdir(path, function(err, files) {
+		// 	console.log(err, files);
+		// });
+
+		files = fs.readdirSync(path);
+
+		files.filter(function(file) {
+			
+		}).forEach(function(for_deletion) {
+			console.log('Delete file: ', for_deletion);
+		});
+
+	},
+
+	generate: function(job) {
 		var current = this.Fiber.current,
 				settings = this.settings,
 				asset = job.asset,
@@ -91,12 +115,16 @@ ImageProcessor = {
 
 		var process = job.queue[0],
 				settings = this.settings,
-				stream = job.stream;
-		
-		this.gm(stream)
-		.setFormat(process.filetype)
-		.resize(process.width)
-		.write(settings.destination + '/' + process.filename, function(err) {
+				stream = job.stream,
+				action;
+
+		action = this.gm(stream).setFormat(process.filetype);
+		if(typeof process.background !== 'undefined') {
+			action = action.background(process.background).flatten();
+		}
+
+		action.resize(process.width)
+		.write(settings.directory + '/' + process.filename, function(err) {
 			job.queue = job.queue.slice(1);
 			this.save(job, callback);
 		}.bind(this));		
@@ -105,16 +133,23 @@ ImageProcessor = {
 	outputs: function(asset, category) {
 		var sizes = category.sizes,
 				filetype = category.filetype,
+				background = category.background,
 				id = asset.sys.id,
-				densities = ['', '@2x', '@3x'],
+				densities = [
+					{prefixed: '', multiplier: 1}, 
+					{prefixed: '@2x', multiplier: 2}, 
+					{prefixed: '@3x', multiplier: 3}
+				],
 				outputs = [];
 
 		sizes.forEach(function(size) {
 			densities.forEach(function(density, index) {
 				outputs.push({
-					filename: id + '-' + size.device + density + '.' + filetype,
-					width: size.width * (index + 1),
-					filetype: filetype
+					filename: id + '-' + size.device + density.prefixed + '.' + filetype,
+					width: size.width * (density.multiplier),
+					density: density,
+					filetype: filetype,
+					background: background
 				});
 			});
 		});
@@ -153,20 +188,21 @@ ImageProcessor = {
 	 *	When an asset has been changed
 	 */
 	assetChanged: function(id, asset) {
-		console.log('An asset changed');
 		this.queue.push({
 			asset: asset,
-			task: 'overwrite'
+			task: 'create'
 		});
+		this.run();
 	},
 
 	/**
 	 *	When an asset has been removed
 	 */
-	assetRemoved: function(id, asset) {
+	assetRemoved: function(id) {
 		this.queue.push({
-			asset: asset,
+			id: id,
 			task: 'delete'
 		});
+		this.run();
 	}
 };
