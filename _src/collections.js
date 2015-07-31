@@ -18,13 +18,10 @@ Collections = {
 	/**	
 	 *	Update collection depending on type
 	 */
-	updateToCollection: function(collection, item) {
+	updateToCollection: function(collection, selector, modifier) {
 		var collection = this[collection],
 				current = this.Fiber.current,
-				now = new Date().getTime(),
-				selector = {'sys\uff0eid': item.sys.id},
-				modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
-				res;
+				result;
 
 		if(typeof collection === 'undefined') {
 			throw {
@@ -34,11 +31,11 @@ Collections = {
 		}
 
 		collection.update(selector, modifier, {upsert: true}, function(err, res) {
-			current.run({error: err, result: res});
+			current.run({error: err, result: result});
 		});
 
-		res = this.Fiber.yield();
-		return res;
+		result = this.Fiber.yield();
+		return result;
 	},
 
 	/**

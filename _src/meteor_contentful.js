@@ -26,10 +26,7 @@ MeteorContentful = {
 	 */
 	start: function() {
 		if(!this.hasSettings()) {
-			throw {
-				type: 'error',
-				message: 'settings.json for ContentFul not correctly set up.'
-			};
+			throw new Meteor.Error(500, 'Could not find settings for Contentful. Have you added them to your settings.json or environment variables?');
 		}
 
 		this.client = this.Contentful.createClient({
@@ -43,12 +40,21 @@ MeteorContentful = {
 		return this;
 	},
 
-	fetch: function(which, cb) {
+	/**
+	 *	Function to fetch data from Contentful
+	 */
+	fetch: function(which) {
 		var current = this.Fiber.current,
+				now,
+				selector, 
+				modifier,
 				action,
 				result;
 
-		if(typeof this.client[which] !== 'function') {
+		if(!this.client) {
+			throw new Meteor.Error(500, 'Contentful client not started. Did you forget to call MeteorContentful.start() ?');
+		}
+		else if(typeof this.client[which] !== 'function') {
 			throw new Meteor.Error(500, 'Contentful does not support this function: ' + which);
 		}
 		else {
@@ -58,14 +64,15 @@ MeteorContentful = {
 				}
 				this.Fiber(function() {
 					data.forEach(function(record) {
-						Collections.updateToCollection(which, record);
+						now = new Date().getTime(),
+						selector = {'sys\uff0eid': record.sys.id},
+						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: record.fields, sys: record.sys}},
+						Collections.updateToCollection(which, selector, modifier);
 					});
 					current.run(this);
 				}.bind(this)).run();
 			}.bind(this));
 		}
-
-
 
 		result = this.Fiber.yield();
 		return result;
@@ -103,7 +110,10 @@ MeteorContentful = {
 		var express = Npm.require('express'),
 				bodyparser = Npm.require('body-parser'),
 				app = express(),
-				item;
+				now,
+				item,
+				selector,
+				modifier;
 
 		app.use(bodyparser.json({type: 'application/vnd.contentful.management.v1+json'}));
 		app.use(bodyparser.json());
@@ -123,7 +133,10 @@ MeteorContentful = {
 				switch(req.headers['x-contentful-topic']) {
 					case 'ContentManagement.Entry.publish': {
 						item = this.remappedUpdate(item);
-						Collections.updateToCollection('entries', item);
+						now = new Date().getTime(),
+						selector = {'sys\uff0eid': item.sys.id},
+						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
+						Collections.updateToCollection('entries', selector, modifier);
 						break;
 					}
 					case 'ContentManagement.Entry.unpublish': {
@@ -132,7 +145,10 @@ MeteorContentful = {
 					}
 					case 'ContentManagement.Asset.publish': {
 						item = this.remappedUpdate(item);
-						Collections.updateToCollection('assets', item);
+						now = new Date().getTime(),
+						selector = {'sys\uff0eid': item.sys.id},
+						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
+						Collections.updateToCollection('assets', selector, modifier);
 						break;
 					}
 					case 'ContentManagement.Asset.unpublish': {
@@ -145,6 +161,5 @@ MeteorContentful = {
 			res.status(200).end();
 		}).bind(this));
 	}
-
 };
 
