@@ -43,64 +43,32 @@ MeteorContentful = {
 		return this;
 	},
 
-	/**
-	 *	Fetch and update all content types to the collection
-	 */
-	fetchContentTypes: function(cb) {
-		var	current = this.Fiber.current,
-				res;
-
-		this.client.contentTypes().then((function(data, err) {
-			this.Fiber(function() {
-				data.map(function(item) {
-					Collections.updateToCollection('contentTypes', item);
-				});
-				current.run();
-			}).run();
-		}).bind(this));
-
-		res = this.Fiber.yield();
-		return this;
-	},
-
-	/**
-	 *	Fetch and update all entries
-	 */
-	fetchEntries: function(cb) {
+	fetch: function(which, cb) {
 		var current = this.Fiber.current,
-				res;
+				action,
+				result;
 
-		this.client.entries().then((function(data, err) {
-			this.Fiber(function() {
-				data.map(function(item) {
-					Collections.updateToCollection('entries', item);
-				});
-				current.run();
-			}).run();
-		}).bind(this));
+		if(typeof this.client[which] !== 'function') {
+			throw new Meteor.Error(500, 'Contentful does not support this function: ' + which);
+		}
+		else {
+			this.client[which]().then(function(data, err) {
+				if(err) {
+					throw new Meteor.Error(500, 'Cannot fetch this data from Contentful: ' + which);
+				}
+				this.Fiber(function() {
+					data.forEach(function(record) {
+						Collections.updateToCollection(which, record);
+					});
+					current.run(this);
+				}.bind(this)).run();
+			}.bind(this));
+		}
 
-		res = this.Fiber.yield();
-		return this;
-	},
 
-	/**
-	 *	Fetch and update all assets
-	 */
-	fetchAssets: function(cb) {
-		var current = this.Fiber.current,
-				res;
 
-		this.client.assets().then((function(data, err) {
-			this.Fiber(function() {
-				data.map(function(item) {
-					Collections.updateToCollection('assets', item);
-				});
-				current.run();
-			}).run();
-		}).bind(this));
-
-		res = this.Fiber.yield();
-		return this;
+		result = this.Fiber.yield();
+		return result;
 	},
 
 	/**
