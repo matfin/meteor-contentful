@@ -24,10 +24,7 @@ Collections = {
 				result;
 
 		if(typeof collection === 'undefined') {
-			throw {
-				type: 'error',
-				message: 'Could not find the collection named ' + collection
-			};
+			throw new Meteor.Error(500, 'The collection: ' + collection + ' could not be found.');
 		}
 
 		collection.update(selector, modifier, {upsert: true}, function(err, res) {
@@ -47,10 +44,7 @@ Collections = {
 				res;
 
 		if(typeof collection === 'undefined') {
-			throw {
-				type: 'error',
-				message: 'Could not find the collection named ' + collection
-			};
+			throw new Meteor.Error(500, 'The collection: ' + collection + ' could not be found.');
 		}
 		collection.remove({'sys.id': item.sys.id}, function() {
 			current.run();

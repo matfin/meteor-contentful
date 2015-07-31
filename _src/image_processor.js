@@ -42,7 +42,6 @@ ImageProcessor = {
 				action = this.generate.bind(this, job);
 				break;
 			case 'delete': 
-				console.log('We need to delete something!');
 				action = this.remove.bind(this, job);
 				break;
 		}
@@ -122,14 +121,34 @@ ImageProcessor = {
 		if(typeof process.background !== 'undefined') {
 			action = action.background(process.background).flatten();
 		}
+		else {
+			delete process.background;
+		}
 
 		action.resize(process.width)
 		.write(settings.directory + '/' + process.filename, function(err) {
 			job.queue = job.queue.slice(1);
+			this.saveToCollection(process);
 			this.save(job, callback);
 		}.bind(this));		
 	},
 
+	/**
+	 *	Save a reference to the generated image to the images collection
+	 */
+	saveToCollection: function(process) {
+		var current = this.Fiber.current,
+				selector = {asset_id: process.asset_id},
+				modifier = process;
+		
+		this.Fiber(function() {
+			Collections.updateToCollection('images', selector, modifier);
+		}).run();
+	},
+
+	/**
+	 *	Generate output filenames, sizes etc
+	 */
 	outputs: function(asset, category) {
 		var sizes = category.sizes,
 				filetype = category.filetype,
@@ -145,6 +164,7 @@ ImageProcessor = {
 		sizes.forEach(function(size) {
 			densities.forEach(function(density, index) {
 				outputs.push({
+					asset_id: asset.sys.id,
 					filename: id + '-' + size.device + density.prefixed + '.' + filetype,
 					width: size.width * (density.multiplier),
 					density: density,
