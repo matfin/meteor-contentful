@@ -24,27 +24,6 @@ ImageProcessor = {
 	},
 
 	/**
-	 *	Check if a file exists
-	 */
-	exists: function(fullpath) {
-		var current = this.Fiber.current,
-				fs = This.FS,
-				result;
-
-		fs.open(fullPath, 'r', function(err, fp) {
-			if(err) {
-				current.run(false);
-			}
-			else {
-				current.run(true);
-			}
-		});
-
-		result = this.Fiber.yield();
-		return result;
-	},
-
-	/**
 	 *	Recursively act on items in the queue, sequentially processing each one
 	 */
 	run: function() {
@@ -160,28 +139,25 @@ ImageProcessor = {
 	 *	When an asset has been added
 	 */
 	assetAdded: function(id, asset) {
-
-		console.log('Was this added???');
-
-		this.queue.push({
-			asset: asset,
-			task: 'create'
-		});
-		//this.run();
+		var asset_is_new = (asset.fetchedAt === asset.refreshedAt);
+		if(asset_is_new) {
+			this.queue.push({
+				asset: asset,
+				task: 'create'
+			});
+			this.run();
+		}
 	},
 
 	/**
 	 *	When an asset has been changed
 	 */
 	assetChanged: function(id, asset) {
-
-		console.log('Was this changed???');
-
+		console.log('An asset changed');
 		this.queue.push({
 			asset: asset,
 			task: 'overwrite'
 		});
-		//this.run();
 	},
 
 	/**

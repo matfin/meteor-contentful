@@ -34,7 +34,6 @@ Collections = {
 		}
 
 		collection.update(selector, modifier, {upsert: true}, function(err, res) {
-			console.log(err, res);
 			current.run({error: err, result: res});
 		});
 
