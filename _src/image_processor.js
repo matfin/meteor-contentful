@@ -137,10 +137,9 @@ ImageProcessor = {
 	 *	Save a reference to the generated image to the images collection
 	 */
 	saveToCollection: function(process) {
-		var current = this.Fiber.current,
-				selector = {asset_id: process.asset_id},
+		var selector = {asset_id: process.asset_id, filename: process.filename},
 				modifier = process;
-		
+
 		this.Fiber(function() {
 			Collections.updateToCollection('images', selector, modifier);
 		}).run();
