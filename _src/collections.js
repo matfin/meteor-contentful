@@ -38,7 +38,7 @@ Collections = {
 	/**
 	 *	Remove an item from the collection
 	 */
-	removeFromCollection: function(collection, item) {
+	removeFromCollection: function(collection, selector) {
 		var collection = this[collection],
 				current = this.Fiber.current,
 				res;
@@ -46,7 +46,7 @@ Collections = {
 		if(typeof collection === 'undefined') {
 			throw new Meteor.Error(500, 'The collection: ' + collection + ' could not be found.');
 		}
-		collection.remove({'sys.id': item.sys.id}, function() {
+		collection.remove(selector, function() {
 			current.run();
 		});
 

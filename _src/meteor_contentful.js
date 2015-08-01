@@ -140,7 +140,7 @@ MeteorContentful = {
 						break;
 					}
 					case 'ContentManagement.Entry.unpublish': {
-						Collections.removeFromCollection('entries', item);
+						Collections.removeFromCollection('entries', {'sys\uff0eid': item.sys.id});
 						break;
 					}
 					case 'ContentManagement.Asset.publish': {
@@ -152,7 +152,7 @@ MeteorContentful = {
 						break;
 					}
 					case 'ContentManagement.Asset.unpublish': {
-						Collections.removeFromCollection('assets', item);
+						Collections.removeFromCollection('assets', {'sys\uff0eid': item.sys.id});
 						break;
 					}
 				}

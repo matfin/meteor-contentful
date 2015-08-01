@@ -55,6 +55,7 @@ function configurePackage(api) {
 	 */
 	api.use([
 		'mongo',
+		'matb33:collection-hooks'
 	], 'server');
 
 	Npm.depends({

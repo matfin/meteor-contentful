@@ -57,24 +57,22 @@ ImageProcessor = {
 	 */
 	remove: function(job) {
 		var fs = this.fs,
-				id = job.id,
+				asset_id = job.asset.sys.id,
 				path = this.settings.directory,
-				files;
-
-		console.log('Find and remove with ID: ', id);
-
-		// fs.readdir(path, function(err, files) {
-		// 	console.log(err, files);
-		// });
-
-		files = fs.readdirSync(path);
+				files = fs.readdirSync(path);
 
 		files.filter(function(file) {
-			
+			return file.indexOf(asset_id) !== -1;
 		}).forEach(function(for_deletion) {
-			console.log('Delete file: ', for_deletion);
-		});
-
+			fs.unlink(path + '/' + for_deletion, function(err) {
+				if(err) {
+					throw new Meteor.Error(500, 'Could not delete file with name: ' + for_deletion);
+				}
+				this.Fiber(function() {
+					Collections.removeFromCollection('images', {asset_id: asset_id});
+				}).run();
+			}.bind(this));
+		}.bind(this));
 	},
 
 	generate: function(job) {
@@ -184,8 +182,10 @@ ImageProcessor = {
 			Collections.assets.find({}).observeChanges({
 				added: this.assetAdded.bind(this),
 				changed: this.assetChanged.bind(this),
-				removed: this.assetRemoved.bind(this)
 			});
+			Collections.assets.after.remove(function(userId, asset) {
+				this.assetRemoved(asset);
+			}.bind(this));
 		}).bind(this)).run();
 	},
 
@@ -217,9 +217,9 @@ ImageProcessor = {
 	/**
 	 *	When an asset has been removed
 	 */
-	assetRemoved: function(id) {
+	assetRemoved: function(asset) {
 		this.queue.push({
-			id: id,
+			asset: asset,
 			task: 'delete'
 		});
 		this.run();
