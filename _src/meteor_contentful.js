@@ -15,14 +15,15 @@ MeteorContentful = {
 	callbackPort: false,
 
 	/**
-	 *	Check settings exists
+	 *	Check settings exist
+	 *	@return {Boolean} - true if settings is not undefined
 	 */
 	hasSettings: function() {
 		return typeof this.settings !== 'undefined';
 	},
 
 	/**
-	 *	Start the client
+	 *	Start the client so we can fetch from Contentful
 	 */
 	start: function() {
 		if(!this.hasSettings()) {
@@ -42,6 +43,8 @@ MeteorContentful = {
 
 	/**
 	 *	Function to fetch data from Contentful
+	 *	@param {String} which - can be contentTypes, entries or assets
+	 *	@return {Object} - the result when the data has been fetched - timed by a Fiber yield
 	 */
 	fetch: function(which) {
 		var current = this.Fiber.current,
@@ -79,7 +82,9 @@ MeteorContentful = {
 	},
 
 	/**
-	 *	Remap incoming updates
+	 *	Remap incoming updates from Contentful
+	 *	@param {Object} item - the item that is pushed from the Contentful update hook with data nested inside localisations
+	 *	@return {Object} item - the item rempapped so it has the same structure as an item being pulled 
 	 */
 	remappedUpdate: function(item) {
 		var fields = item.fields,
@@ -98,13 +103,15 @@ MeteorContentful = {
 
 	/**
 	 *	Function that checks the headers of incoming POST requests
+	 *	@param {Object} - incoming POST request from Contentful web hook
+	 *	@return {Boolean} - true if the authentication header matches that in the settings
 	 */
 	authenticateCallback: function(request) {
 		return request.headers.authorization === 'Basic ' + this.settings.callbackToken;
 	},
 
 	/**
-	 *	Listen for incoming changes
+	 *	Listen for incoming changes from the Contentful webhook and call updates to content accordingly.
 	 */
 	listen: function() {
 		var express = Npm.require('express'),

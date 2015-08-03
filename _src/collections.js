@@ -17,6 +17,10 @@ Collections = {
 
 	/**	
 	 *	Update collection depending on type
+	 *	@param {String} collection - the name of the collection to update
+	 *	@param {Object} selector - the selector to fetch what needs to be changed
+	 *	@param {Object} modifier - object detailing how to modify what was selected by the selector
+	 *	@return {Object} - Fiber delayed result returned when the update succeeded/failed
 	 */
 	updateToCollection: function(collection, selector, modifier) {
 		var collection = this[collection],
@@ -37,6 +41,9 @@ Collections = {
 
 	/**
 	 *	Remove an item from the collection
+	 *	@param {String} collection - the collection to be updated
+	 *	@param {Object} selector - Selector to choose the item to remove
+	 *	@return {Object} node Fiber returned with details of the update operation
 	 */
 	removeFromCollection: function(collection, selector) {
 		var collection = this[collection],
