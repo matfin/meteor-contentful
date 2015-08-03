@@ -31,16 +31,17 @@ Package.onTest(function(api) {
    *	Dependencies
 	 */
 	api.use([
-		'tinytest'
+		'matfin:meteor-contentful',
+		'mike:mocha-package'
 	], 'server');
 
 	/**
 	 *	Package test file(s)
 	 */
 	api.addFiles([
-		'collections_tests.js',
-		'meteor_contentful_tests.js',
-		'image_processor_tests.js'
+		'tests/unit/collections_unit.js',
+		'tests/unit/meteor_contentful_unit.js',
+		'tests/unit/image_processor_unit.js'
 	], 'server');
 });
 
