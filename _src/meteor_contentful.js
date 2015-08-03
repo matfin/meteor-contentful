@@ -38,6 +38,8 @@ MeteorContentful = {
 			callbackPort: this.settings.callbackPort
 		});
 
+		Collections.init();
+
 		return this;
 	},
 

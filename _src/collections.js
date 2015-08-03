@@ -10,10 +10,17 @@ Collections = {
 	/**
 	 *	Collections
 	 */
-	contentTypes: new Mongo.Collection('contentTypes'),
-	assets: new Mongo.Collection('assets'),
-	entries: new Mongo.Collection('entries'),
-	images: new Mongo.Collection('images'),
+	contentTypes: null,
+	assets: null,
+	entries: null,
+	images: null,
+
+	init: function() {
+		this.contentTypes = new Mongo.Collection('contentTypes');
+		this.assets = new Mongo.Collection('assets');
+		this.entries = new Mongo.Collection('entries');
+		this.images = new Mongo.Collection('images');
+	},
 
 	/**	
 	 *	Update collection depending on type

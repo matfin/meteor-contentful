@@ -31,17 +31,15 @@ Package.onTest(function(api) {
    *	Dependencies
 	 */
 	api.use([
-		'matfin:meteor-contentful',
-		'mike:mocha-package'
+		'sanjo:jasmine@0.15.1',
+		'matfin:meteor-contentful'
 	], 'server');
 
 	/**
 	 *	Package test file(s)
 	 */
 	api.addFiles([
-		'tests/unit/collections_unit.js',
-		'tests/unit/meteor_contentful_unit.js',
-		'tests/unit/image_processor_unit.js'
+		'tests/jasmine/server/integration/collections.js'
 	], 'server');
 });
 
@@ -55,8 +53,8 @@ function configurePackage(api) {
 	 *	Dependencies
 	 */
 	api.use([
-		'mongo',
-		'matb33:collection-hooks'
+		'matb33:collection-hooks',
+		'mongo'
 	], 'server');
 
 	Npm.depends({
