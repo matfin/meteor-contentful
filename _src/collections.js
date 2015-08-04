@@ -24,21 +24,21 @@ Collections = {
 
 	/**	
 	 *	Update collection depending on type
-	 *	@param {String} collection - the name of the collection to update
+	 *	@param {String} collection_name - the name of the collection to update
 	 *	@param {Object} selector - the selector to fetch what needs to be changed
 	 *	@param {Object} modifier - object detailing how to modify what was selected by the selector
 	 *	@return {Object} - Fiber delayed result returned when the update succeeded/failed
 	 */
-	updateToCollection: function(collection, selector, modifier) {
-		var collection = this[collection],
+	updateToCollection: function(collection_name, selector, modifier) {
+		var collection = this[collection_name],
 				current = this.Fiber.current,
 				result;
 
 		if(typeof collection === 'undefined') {
-			throw new Meteor.Error(500, 'The collection: ' + collection + ' could not be found.');
+			throw new Meteor.Error('The collection: ' + collection_name + ' could not be found.');
 		}
 
-		collection.update(selector, modifier, {upsert: true}, function(err, res) {
+		collection.update(selector, modifier, {upsert: true}, function(err, result) {
 			current.run({error: err, result: result});
 		});
 
