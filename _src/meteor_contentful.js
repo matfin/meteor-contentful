@@ -63,7 +63,7 @@ MeteorContentful = {
 		else {
 			this.client[which]().then(Meteor.bindEnvironment(function(data, err) {
 				if(err) {
-					throw new Meteor.Error(500, 'Cannot fetch this data from Contentful: ' + which);
+					throw 'Error fetching data from Contentful in attempting to call ' + which;
 				}
 				else {
 					data.forEach(function(record) {
@@ -74,8 +74,8 @@ MeteorContentful = {
 					});
 				}
 				future.return(this);
-			}.bind(this), function() {
-				throw new Meteor.Error(500, 'Failed to bind environment when fetching Contentful data.');
+			}.bind(this), function(e) {
+				throw new Meteor.Error(500, 'Failed to bind environment when fetching Contentful data: ' + e);
 			}));
 		}
 		return future.wait();

@@ -107,7 +107,7 @@ describe('fetch()', function() {
 		 */
 		expect(function() {
 			MeteorContentful.fetch('another');
-		}).toThrow(new Meteor.Error(500, 'Cannot fetch this data from Contentful: another'));
+		}).toThrow(new Meteor.Error(500, 'Failed to bind environment when fetching Contentful data: Error fetching data from Contentful in attempting to call another'));
 
 		/**
 		 *	Cleanup and done
@@ -121,7 +121,7 @@ describe('fetch()', function() {
 		 *	Stubs
 		 */
 		MeteorContentful.client = {
-			collected: function() {
+			entries: function() {
 				return {
 					then: function(cb) {
 						cb([
@@ -139,15 +139,16 @@ describe('fetch()', function() {
 		/**
 		 *	Run the function and test
 		 */
-		Meteor.wrapAsync(MeteorContentful.fetch('collected'));
+		Meteor.wrapAsync(MeteorContentful.fetch('entries'));
 		
-		expect(Collections.updateToCollection).toHaveBeenCalled();
+		expect(Collections.updateToCollection).toHaveBeenCalledWith('entries', jasmine.any(Object), jasmine.any(Object));
 		/**
 		 *	Cleanup and done
 		 */
+		Collections.entries.remove({});
 		MeteorContentful.client = false;
 		done();
-		
 	});
 
 });
+
