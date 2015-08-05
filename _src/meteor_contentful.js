@@ -87,6 +87,9 @@ MeteorContentful = {
 	 *	@return {Object} item - the item rempapped so it has the same structure as an item being pulled 
 	 */
 	remappedUpdate: function(item) {
+		if(item === null || typeof item !== 'object') {
+			return item;
+		}
 		var fields = item.fields,
 				fields_keys = Object.keys(fields),
 				nested_object,

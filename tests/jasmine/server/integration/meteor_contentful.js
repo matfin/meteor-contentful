@@ -1,6 +1,6 @@
 'use strict';
 
-describe('start()', function() {
+describe('MeteorContentful - start()', function() {
 
 	it('should throw if the settings do not exist', function(done) {
 		expect(function() {
@@ -55,7 +55,7 @@ describe('start()', function() {
 	});
 });
 
-describe('fetch()', function() {
+describe('MeteorContentful - fetch()', function() {
 
 	it('should throw an error if fetch is called without a client', function(done) {
 		expect(function() {
@@ -147,6 +147,64 @@ describe('fetch()', function() {
 		 */
 		Collections.entries.remove({});
 		MeteorContentful.client = false;
+		done();
+	});
+
+});
+
+describe('MeteorContentful - remappedUpdate()', function() {
+
+	it('should return an item passed in as an argument if that item is not an object', function(done) {
+
+		/**
+	 	 *	Run the function passing in a Number
+		 */
+		var item = MeteorContentful.remappedUpdate(1);
+		expect(item).toEqual(1);
+		item = MeteorContentful.remappedUpdate('A string');
+		expect(item).toEqual('A string');
+		item = MeteorContentful.remappedUpdate(null);
+		expect(item).toBeNull();
+		item = MeteorContentful.remappedUpdate();
+		expect(item).toBeUndefined();
+		done();
+
+	});
+
+	it('should correctly flatten an incoming object with nested fields', function(done) {
+
+		/**
+		 *	Two dummy objects
+		 */
+		var unmapped = {
+			fields: {
+				name: {
+					'en-US': 'Wardrobe'
+				},
+				age: {
+					'en-US': 33
+				},
+				other: {
+					'en-US': 'Another'
+				}
+			}
+		},
+
+		check = {
+			fields: {
+				name: 'Wardrobe',
+				age: 33,
+				other: 'Another'
+			}
+		},
+		mapped;
+
+		/**
+		 * Run the function and the test
+	 	 */
+		mapped = MeteorContentful.remappedUpdate(unmapped);
+		expect(mapped).toEqual(check);
+
 		done();
 	});
 
