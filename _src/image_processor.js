@@ -5,7 +5,7 @@ ImageProcessor = {
 	/**
 	 *	Node dependencies
 	 */
-	Fiber: Npm.require('fibers'),
+	Future: Npm.require('fibers/future'),
 	request: Npm.require('request'),
 	gm: Npm.require('gm'),
 	fs: Npm.require('fs'),
@@ -85,29 +85,27 @@ ImageProcessor = {
 	 *	@param {Object} job - the job containing the asset source 
 	 */
 	generate: function(job) {
-		var current = this.Fiber.current,
+		var future = new this.Future(),
 				settings = this.settings,
 				asset = job.asset,
 				source = 'http:' + asset.fields.file.url,
-				category = settings.categories[asset.fields.description],
-				result;
+				category = settings.categories[asset.fields.description];
 
 		job.queue = this.outputs(asset, category);
 
-		this.request({url: source, encoding: null}, function(err, response, body) {
+		this.request({url: source, encoding: null}, Meteor.bindEnvironment(function(err, response, body) {
 			if(err) {
-				current.run({ok: false});
+				future.return({ok: false});
 			}
 			else {
 				job.stream = body;
 				this.save(job, function() {
-					current.run({ok: true});
+					future.return({ok: true});
 				});
 			}
-		}.bind(this));
+		}.bind(this)));
 
-		result = this.Fiber.yield();
-		return result;
+		return future.wait();
 	},
 
 	/**
@@ -135,11 +133,11 @@ ImageProcessor = {
 		}
 
 		action.resize(process.width)
-		.write(settings.directory + '/' + process.filename, function(err) {
+		.write(settings.directory + '/' + process.filename, Meteor.bindEnvironment(function(err) {
 			job.queue = job.queue.slice(1);
 			this.saveToCollection(process);
 			this.save(job, callback);
-		}.bind(this));		
+		}.bind(this)));		
 	},
 
 	/**
@@ -149,10 +147,7 @@ ImageProcessor = {
 	saveToCollection: function(process) {
 		var selector = {asset_id: process.asset_id, filename: process.filename},
 				modifier = process;
-
-		this.Fiber(function() {
-			Collections.updateToCollection('images', selector, modifier);
-		}).run();
+		Collections.updateToCollection('images', selector, modifier);
 	},
 
 	/**
@@ -193,7 +188,7 @@ ImageProcessor = {
 	 *	Observe changes to the assets collection and run callbacks
 	 */
 	observe: function() {
-		this.Fiber((function() {
+		Meteor.bindEnvironment(function() {
 			Collections.assets.find({}).observeChanges({
 				added: this.assetAdded.bind(this),
 				changed: this.assetChanged.bind(this),
@@ -201,7 +196,9 @@ ImageProcessor = {
 			Collections.assets.after.remove(function(userId, asset) {
 				this.assetRemoved(asset);
 			}.bind(this));
-		}).bind(this)).run();
+		}.bind(this), function() {
+			throw new Meteor.Error(500, 'Failed to bind environment when observing asset collection changes.');
+		})();
 	},
 
 	/**

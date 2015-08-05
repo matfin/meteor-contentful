@@ -75,7 +75,7 @@ MeteorContentful = {
 				}
 				future.return(this);
 			}.bind(this), function() {
-				throw new Meteor.Error(500, 'Failed to bind environment');
+				throw new Meteor.Error(500, 'Failed to bind environment when fetching Contentful data.');
 			}));
 		}
 		return future.wait();
