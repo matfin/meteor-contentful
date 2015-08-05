@@ -24,6 +24,9 @@ describe('init()', function() {
 		expect(Collections.entries instanceof Mongo.Collection).toBe(true);
 		expect(Collections.images instanceof Mongo.Collection).toBe(true);
 
+		/**
+		 *	Cleanup and done
+		 */
 		done();
 	});
 });
@@ -106,4 +109,51 @@ describe('removeFromCollection()', function() {
 
 		done();
 	});
+
+	it('should have the correct number of documents when a document has been removed', function(done) {
+
+		/**
+		 * Add two items 
+		 */
+		Collections.updateToCollection('entries', {id: 2}, {id: 2, an: 'Item'});
+		Collections.updateToCollection('entries', {id: 3}, {id: 3, an: 'Other item'});
+
+		/**
+		 *	Check we have two items
+		 */
+		expect(Collections.entries.find({}).count()).toEqual(2);
+
+		/**
+		 *	Remove one document
+		 */
+		Collections.removeFromCollection('entries', {id: 2});
+
+		/**
+		 *	Check we have one document left
+		 */
+		expect(Collections.entries.find({}).count()).toEqual(1);
+
+		/**
+		 *	Attempt to remove an document with a non matching selector
+		 */
+		Collections.removeFromCollection('entries', {id: 4});
+
+		/**
+		 *	Check we still have one document left
+		 */
+		expect(Collections.entries.find({}).count()).toEqual(1);
+
+		/** 
+		 *	Remove the one remaining document
+		 */
+		Collections.removeFromCollection('entries', {id: 3});
+
+		/**
+		 *	Now we should have no documents in the collection
+		 */
+		expect(Collections.entries.find({}).count()).toEqual(0);
+
+		done();
+	});
+
 });

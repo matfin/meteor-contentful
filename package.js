@@ -40,7 +40,7 @@ Package.onTest(function(api) {
 	 */
 	api.addFiles([
 		'tests/jasmine/server/integration/collections.js',
-		'tests/jasmine/server/integration/meteor_contentful.js'
+		//'tests/jasmine/server/integration/meteor_contentful.js'
 	], 'server');
 });
 
