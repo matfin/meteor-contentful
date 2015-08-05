@@ -1,6 +1,6 @@
 'use strict';
 
-describe('init()', function() {
+describe('Collections - init()', function() {
 	it('should set up the collections', function(done) {
 
 		/**
@@ -31,14 +31,14 @@ describe('init()', function() {
 	});
 });
 
-describe('updateToCollection()', function() {
+describe('Collections - updateToCollection()', function() {
 	it('should throw a Meteor error if the collection cannot be found given the name', function(done) {
 		/**
 		 *	Call updateToCollections() with params
 		 */
 		expect(function() {
 			Collections.updateToCollection('invalid-collection', {}, {x: 'y'});
-		}).toThrow();
+		}).toThrow(new Meteor.Error(500, 'The collection: invalid-collection could not be found.'));
 
 		done();
 	});
@@ -98,14 +98,14 @@ describe('updateToCollection()', function() {
 
 });
 
-describe('removeFromCollection()', function() {
+describe('Collections - removeFromCollection()', function() {
 	it('should throw and error when attempting to remove from a collection that does not exist given a name', function(done) {
 		/**
 		 *	Call the function with an invalid collection name
 		 */
 		expect(function() {
 			Collections.removeFromCollection('another-invalid-collection', {id: 1});
-		}).toThrow();
+		}).toThrow(new Meteor.Error(500, 'The collection: another-invalid-collection could not be found.'));
 
 		done();
 	});

@@ -34,7 +34,7 @@ Collections = {
 				future = new this.Future();
 
 		if(typeof collection === 'undefined') {
-			throw new Meteor.Error('The collection: ' + collection_name + ' could not be found.');
+			throw new Meteor.Error(500, 'The collection: ' + collection_name + ' could not be found.');
 		}
 		collection.update(selector, modifier, {upsert: true}, function(err, result) {
 			future.return({error: err, result: result});
@@ -49,12 +49,12 @@ Collections = {
 	 *	@param {Object} selector - Selector to choose the item to remove
 	 *	@return {Object} Node Fiber future that returns only when finished
 	 */
-	removeFromCollection: function(collection, selector) {
-		var collection = this[collection],
+	removeFromCollection: function(collection_name, selector) {
+		var collection = this[collection_name],
 				future = new this.Future();
 
 		if(typeof collection === 'undefined') {
-			throw new Meteor.Error(500, 'The collection: ' + collection + ' could not be found.');
+			throw new Meteor.Error(500, 'The collection: ' + collection_name + ' could not be found.');
 		}
 		collection.remove(selector, function() {
 			future.return();
