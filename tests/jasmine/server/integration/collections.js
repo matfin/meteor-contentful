@@ -1,3 +1,5 @@
+'use strict';
+
 describe('init()', function() {
 	it('should set up the collections', function(done) {
 
@@ -57,6 +59,40 @@ describe('updateToCollection()', function() {
 		Collections.entries.remove({});
 		done();
 	});
+
+	it('should have the correct number of documents given modifiers and selectors', function(done) {
+
+		var item = {id: 10, an: 'Item', to: 'Insert'},
+				updated = {id: 10, an: 'Item', to: 'Update'},
+				newItem = {id: 11, an: 'Item', to: 'Add as new'};
+
+		/** 
+		 *	Running this should add one document to the collection
+		 */
+		Collections.updateToCollection('entries', {id: item.id}, item);
+		expect(Collections.entries.find({}).count()).toEqual(1);
+
+		/**
+		 *	Running with the same selector and a different modifier 
+		 *	should still result in one item inside the collection
+		 */
+		Collections.updateToCollection('entries', {id: updated.id}, updated);
+		expect(Collections.entries.find({}).count()).toEqual(1);
+
+		/**
+		 *	Running with a different selector and modifier should
+		 *	result in two documents being inside the collection
+		 */
+		Collections.updateToCollection('entries', {id: newItem.id}, newItem);
+		expect(Collections.entries.find({}).count()).toEqual(2);
+
+		/**
+		 *	Cleanup and done
+		 */
+		Collections.entries.remove({});
+		done();
+	});
+
 });
 
 describe('removeFromCollection()', function() {
@@ -67,7 +103,7 @@ describe('removeFromCollection()', function() {
 		expect(function() {
 			Collections.removeFromCollection('another-invalid-collection', {id: 1});
 		}).toThrow();
-		
+
 		done();
 	});
 });

@@ -4,7 +4,7 @@ MeteorContentful = {
 	/**
 	 *	Node dependencies
 	 */
-	Fiber: Npm.require('fibers'),
+	Future: Npm.require('fibers/future'),
 	Contentful: Npm.require('contentful'),
 
 	/**
@@ -34,8 +34,7 @@ MeteorContentful = {
 			space: this.settings.space,
 			accessToken: this.settings.accessToken,
 			secure: true,
-			host: this.settings.host,
-			callbackPort: this.settings.callbackPort
+			host: this.settings.host
 		});
 
 		Collections.init();
@@ -49,12 +48,11 @@ MeteorContentful = {
 	 *	@return {Object} - the result when the data has been fetched - timed by a Fiber yield
 	 */
 	fetch: function(which) {
-		var current = this.Fiber.current,
+		var future = new this.Future(),
 				now,
 				selector, 
 				modifier,
-				action,
-				result;
+				action;
 
 		if(!this.client) {
 			throw new Meteor.Error(500, 'Contentful client not started. Did you forget to call MeteorContentful.start() ?');
@@ -63,24 +61,24 @@ MeteorContentful = {
 			throw new Meteor.Error(500, 'Contentful does not support this function: ' + which);
 		}
 		else {
-			this.client[which]().then(function(data, err) {
+			this.client[which]().then(Meteor.bindEnvironment(function(data, err) {
 				if(err) {
 					throw new Meteor.Error(500, 'Cannot fetch this data from Contentful: ' + which);
 				}
-				this.Fiber(function() {
+				else {
 					data.forEach(function(record) {
-						now = new Date().getTime(),
-						selector = {'sys\uff0eid': record.sys.id},
-						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: record.fields, sys: record.sys}},
+						now = new Date().getTime();
+						selector = {'sys\uff0eid': record.sys.id};
+						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: record.fields, sys: record.sys}};
 						Collections.updateToCollection(which, selector, modifier);
 					});
-					current.run(this);
-				}.bind(this)).run();
-			}.bind(this));
+				}
+				future.return(this);
+			}.bind(this), function() {
+				throw new Meteor.Error(500, 'Failed to bind environment');
+			}));
 		}
-
-		result = this.Fiber.yield();
-		return result;
+		return future.wait();
 	},
 
 	/**

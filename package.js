@@ -31,7 +31,7 @@ Package.onTest(function(api) {
    *	Dependencies
 	 */
 	api.use([
-		'sanjo:jasmine@0.15.1',
+		'sanjo:jasmine@0.16.3',
 		'matfin:meteor-contentful'
 	], 'server');
 
@@ -39,7 +39,8 @@ Package.onTest(function(api) {
 	 *	Package test file(s)
 	 */
 	api.addFiles([
-		'tests/jasmine/server/integration/collections.js'
+		'tests/jasmine/server/integration/collections.js',
+		'tests/jasmine/server/integration/meteor_contentful.js'
 	], 'server');
 });
 

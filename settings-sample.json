@@ -1,15 +1,14 @@
 {
 	"contentful": {
-		"accessToken": "<your_contentful_access_token>",
+		"accessToken": "<your_access_token>",
 		"space": "<your_space_id>",
 		"host": "cdn.contentful.com",
-		"callbackToken": "<your_contentful_webhook_token>",
+		"callbackToken": "<your_callback_token>",
 		"callbackPort": 1234
 	},
 	"imageprocessor": {
-		"source": "<full_path_for_downloaded_source_images>",
-		"processed": "<full_path_for_processed_images>",
-		"baseUrl": "http://media.domain.tld/images/",
+		"directory": "<process_images_go_here>",
+		"url": "<base_url_for_images>",
 		"quality": 0.9,
 		"categories": {
 			"portfolio": {
@@ -18,18 +17,15 @@
 				"sizes": [
 					{
 						"device": "desktop",
-						"width": 800,
-						"height": 600
+						"width": 800
 					},
 					{
 						"device": "tablet",
-						"width": 1024,
-						"height": 768
+						"width": 1024
 					},
 					{
 						"device": "mobile",
-						"width": 640,
-						"height": 480
+						"width": 640
 					}
 				]
 			},
@@ -39,41 +35,19 @@
 				"sizes": [
 					{
 						"device": "desktop",
-						"width": 800,
-						"height": 600
+						"width": 800
 					},
 					{
 						"device": "tablet",
-						"width": 1024,
-						"height": 768
+						"width": 1024
 					},
 					{
 						"device": "mobile",
-						"width": 640,
-						"height": 480
-					}
-				]
-			},
-			"logo": {
-				"filetype": "png",
-				"sizes": [
-					{
-						"device": "desktop",
-						"width": 80,
-						"height": 80
-					},
-					{
-						"device": "tablet",
-						"width": 80,
-						"height": 80
-					},
-					{
-						"device": "mobile",
-						"width": 70,
-						"height": 70
+						"width": 640
 					}
 				]
 			}
 		}
 	}
 }
+
