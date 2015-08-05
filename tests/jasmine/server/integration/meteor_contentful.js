@@ -210,3 +210,388 @@ describe('MeteorContentful - remappedUpdate()', function() {
 
 });
 
+describe('MeteorContentful - authenticateCallback()', function() {
+
+	it('should return true if the authorisation header matches', function(done) {
+
+		/**
+		 *	Setting up
+		 */
+		MeteorContentful.settings = {
+			callbackToken: '12345'
+		};
+
+		/**
+		 *	Run the function and the test
+		 */
+		var authenticated = MeteorContentful.authenticateCallback({
+			headers: {
+				authorization: 'Basic 12345'
+			}
+		});
+		expect(authenticated).toEqual(true);
+
+		/**
+		 *	Cleanup and done
+		 */
+		MeteorContentful.settings = false;
+		done();
+	});
+
+	it('should return false if the authorisation header does not match', function(done) {
+
+		/**
+		 *	Setting up
+		 */
+		MeteorContentful.settings = {
+			callbackToken: '12345'
+		};
+
+		/**
+		 *	Run the function and the test
+		 */
+		var authenticated = MeteorContentful.authenticateCallback({
+			headers: {
+				authorization: 'Basic Wrong'
+			}
+		});
+		expect(authenticated).toEqual(false);
+
+		/**
+		 *	Cleanup and done
+		 */
+		MeteorContentful.settings = false;
+		done();
+	});
+
+});
+
+describe('MeteorContentful - listen()', function() {
+
+	it('should throw an error if MeteorContentful.start() has not been run', function(done) {
+		/**
+		 *	Run the function
+		 */
+		expect(function() {
+			MeteorContentful.listen();
+		}).toThrow(new Meteor.Error(500, 'MeteorContentful needs to be started first - call MeteorContentful.start()'));
+		done();
+	});
+
+	it('should update the entries collection given a header of ContentManagement.Entry.publish', function(done) {
+
+		/**	
+		 *	Stubs
+		 */
+		MeteorContentful.client = {};
+		MeteorContentful.settings = {
+			callbackPort: 12345,
+			callbackToken: '12345'
+		};
+
+		/**
+		 *	Spies
+		 */
+		spyOn(Npm, 'require').and.callFake(function(lib) {
+			switch(lib) {
+				case 'express': 
+					return function() {
+						return {
+							use: function(which){},
+							listen: function(){},
+							post: function(hook, callback) {
+								var req = {
+									headers: {
+										'x-contentful-topic': 'ContentManagement.Entry.publish',
+										'authorization': 'Basic 12345'
+									},
+									body: {
+										sys: {
+											id: 1
+										},
+										fields: {}
+									}
+								},
+								res = {
+									status: function(stat) {
+										return {
+											end: function(){}
+										};
+									}
+								};
+								callback(req, res);
+							}
+						};
+					};
+					break;
+				case 'body-parser':
+					return {
+						json: function(){}
+					};
+					break;
+			}
+		});
+
+		/**
+		 *	Stub this for now, we are not testing the remapping function.
+		 */
+		spyOn(MeteorContentful, 'remappedUpdate').and.callFake(function(item) {
+			return item;
+		});		
+
+		/**
+		 *	Run the tests from within the spy
+		 */
+		spyOn(Collections, 'updateToCollection').and.callFake(function(collection, selector, modifier) {
+			expect(collection).toEqual('entries');
+			expect(selector).toEqual({'sys\uff0eid': 1});
+			expect(modifier).toEqual({ $setOnInsert: { fetchedAt: jasmine.any(Number) }, $set: { refreshedAt: jasmine.any(Number), fields: {}, sys: { id: 1 } } });
+		});
+
+		/**
+		 *	Run the function
+		 */
+		MeteorContentful.listen();
+
+		/**
+		 *	Cleanup and done
+		 */
+		MeteorContentful.client = false;
+		MeteorContentful.settings = false;
+		done();
+	});
+
+	it('should update the assets collection given a header of ContentManagement.Asset.publish', function(done) {
+
+		/**	
+		 *	Stubs
+		 */
+		MeteorContentful.client = {};
+		MeteorContentful.settings = {
+			callbackPort: 12345,
+			callbackToken: '12345'
+		};
+
+		/**
+		 *	Spies
+		 */
+		spyOn(Npm, 'require').and.callFake(function(lib) {
+			switch(lib) {
+				case 'express': 
+					return function() {
+						return {
+							use: function(which){},
+							listen: function(){},
+							post: function(hook, callback) {
+								var req = {
+									headers: {
+										'x-contentful-topic': 'ContentManagement.Asset.publish',
+										'authorization': 'Basic 12345'
+									},
+									body: {
+										sys: {
+											id: 1
+										},
+										fields: {}
+									}
+								},
+								res = {
+									status: function(stat) {
+										return {
+											end: function(){}
+										};
+									}
+								};
+								callback(req, res);
+							}
+						};
+					};
+					break;
+				case 'body-parser':
+					return {
+						json: function(){}
+					};
+					break;
+			}
+		});
+
+		/**
+		 *	Stub this for now, we are not testing the remapping function.
+		 */
+		spyOn(MeteorContentful, 'remappedUpdate').and.callFake(function(item) {
+			return item;
+		});		
+
+		/**
+		 *	Run the tests from within the spy
+		 */
+		spyOn(Collections, 'updateToCollection').and.callFake(function(collection, selector, modifier) {
+			expect(collection).toEqual('assets');
+			expect(selector).toEqual({'sys\uff0eid': 1});
+			expect(modifier).toEqual({ $setOnInsert: { fetchedAt: jasmine.any(Number) }, $set: { refreshedAt: jasmine.any(Number), fields: {}, sys: { id: 1 } } });
+		});
+
+		/**
+		 *	Run the function
+		 */
+		MeteorContentful.listen();
+
+		/**
+		 *	Cleanup and done
+		 */
+		MeteorContentful.client = false;
+		MeteorContentful.settings = false;
+		done();
+	});
+
+	it('should remove from the entries collection given a header of ContentManagement.Entry.unpublish', function(done) {
+
+		/**	
+		 *	Stubs
+		 */
+		MeteorContentful.client = {};
+		MeteorContentful.settings = {
+			callbackPort: 12345,
+			callbackToken: '12345'
+		};
+
+		/**
+		 *	Spies
+		 */
+		spyOn(Npm, 'require').and.callFake(function(lib) {
+			switch(lib) {
+				case 'express': 
+					return function() {
+						return {
+							use: function(which){},
+							listen: function(){},
+							post: function(hook, callback) {
+								var req = {
+									headers: {
+										'x-contentful-topic': 'ContentManagement.Entry.unpublish',
+										'authorization': 'Basic 12345'
+									},
+									body: {
+										sys: {
+											id: 1
+										},
+										fields: {}
+									}
+								},
+								res = {
+									status: function(stat) {
+										return {
+											end: function(){}
+										};
+									}
+								};
+								callback(req, res);
+							}
+						};
+					};
+					break;
+				case 'body-parser':
+					return {
+						json: function(){}
+					};
+					break;
+			}
+		});
+
+		/**
+		 *	Run the tests from within the spy
+		 */
+		spyOn(Collections, 'removeFromCollection').and.callFake(function(collection, selector) {
+			expect(collection).toEqual('entries');
+			expect(selector).toEqual({'sys\uff0eid': 1});
+		});
+
+		/**
+		 *	Run the function
+		 */
+		MeteorContentful.listen();
+
+		/**
+		 *	Cleanup and done
+		 */
+		MeteorContentful.client = false;
+		MeteorContentful.settings = false;
+		done();
+	});
+
+	it('should remove from the assets collection given a header of ContentManagement.Asset.unpublish', function(done) {
+
+		/**	
+		 *	Stubs
+		 */
+		MeteorContentful.client = {};
+		MeteorContentful.settings = {
+			callbackPort: 12345,
+			callbackToken: '12345'
+		};
+
+		/**
+		 *	Spies
+		 */
+		spyOn(Npm, 'require').and.callFake(function(lib) {
+			switch(lib) {
+				case 'express': 
+					return function() {
+						return {
+							use: function(which){},
+							listen: function(){},
+							post: function(hook, callback) {
+								var req = {
+									headers: {
+										'x-contentful-topic': 'ContentManagement.Asset.unpublish',
+										'authorization': 'Basic 12345'
+									},
+									body: {
+										sys: {
+											id: 1
+										},
+										fields: {}
+									}
+								},
+								res = {
+									status: function(stat) {
+										return {
+											end: function(){}
+										};
+									}
+								};
+								callback(req, res);
+							}
+						};
+					};
+					break;
+				case 'body-parser':
+					return {
+						json: function(){}
+					};
+					break;
+			}
+		});
+
+		/**
+		 *	Run the tests from within the spy
+		 */
+		spyOn(Collections, 'removeFromCollection').and.callFake(function(collection, selector) {
+			expect(collection).toEqual('assets');
+			expect(selector).toEqual({'sys\uff0eid': 1});
+		});
+
+		/**
+		 *	Run the function
+		 */
+		MeteorContentful.listen();
+
+		/**
+		 *	Cleanup and done
+		 */
+		MeteorContentful.client = false;
+		MeteorContentful.settings = false;
+		done();
+	});
+
+});

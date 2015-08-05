@@ -117,6 +117,11 @@ MeteorContentful = {
 	 *	Listen for incoming changes from the Contentful webhook and call updates to content accordingly.
 	 */
 	listen: function() {
+
+		if(!this.client) {
+			throw new Meteor.Error(500, 'MeteorContentful needs to be started first - call MeteorContentful.start()');
+		}
+
 		var express = Npm.require('express'),
 				bodyparser = Npm.require('body-parser'),
 				app = express(),
