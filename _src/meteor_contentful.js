@@ -126,7 +126,7 @@ MeteorContentful = {
 		app.use(bodyparser.json());
 		app.listen(this.settings.callbackPort);
 		
-		app.post('/hooks/contentful', (function(req, res) {
+		app.post('/hooks/contentful', Meteor.bindEnvironment(function(req, res) {
 
 			if(!this.authenticateCallback(req)) {
 				console.log('Not authenticated!');
@@ -136,37 +136,35 @@ MeteorContentful = {
 
 			item = req.body;
 			
-			this.Fiber((function(){
-				switch(req.headers['x-contentful-topic']) {
-					case 'ContentManagement.Entry.publish': {
-						item = this.remappedUpdate(item);
-						now = new Date().getTime(),
-						selector = {'sys\uff0eid': item.sys.id},
-						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
-						Collections.updateToCollection('entries', selector, modifier);
-						break;
-					}
-					case 'ContentManagement.Entry.unpublish': {
-						Collections.removeFromCollection('entries', {'sys\uff0eid': item.sys.id});
-						break;
-					}
-					case 'ContentManagement.Asset.publish': {
-						item = this.remappedUpdate(item);
-						now = new Date().getTime(),
-						selector = {'sys\uff0eid': item.sys.id},
-						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
-						Collections.updateToCollection('assets', selector, modifier);
-						break;
-					}
-					case 'ContentManagement.Asset.unpublish': {
-						Collections.removeFromCollection('assets', {'sys\uff0eid': item.sys.id});
-						break;
-					}
+			switch(req.headers['x-contentful-topic']) {
+				case 'ContentManagement.Entry.publish': {
+					item = this.remappedUpdate(item);
+					now = new Date().getTime(),
+					selector = {'sys\uff0eid': item.sys.id},
+					modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
+					Collections.updateToCollection('entries', selector, modifier);
+					break;
 				}
-			}).bind(this)).run();
+				case 'ContentManagement.Entry.unpublish': {
+					Collections.removeFromCollection('entries', {'sys\uff0eid': item.sys.id});
+					break;
+				}
+				case 'ContentManagement.Asset.publish': {
+					item = this.remappedUpdate(item);
+					now = new Date().getTime(),
+					selector = {'sys\uff0eid': item.sys.id},
+					modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: item.fields, sys: item.sys}},
+					Collections.updateToCollection('assets', selector, modifier);
+					break;
+				}
+				case 'ContentManagement.Asset.unpublish': {
+					Collections.removeFromCollection('assets', {'sys\uff0eid': item.sys.id});
+					break;
+				}
+			}
 
 			res.status(200).end();
-		}).bind(this));
+		}.bind(this)));
 	}
 };
 

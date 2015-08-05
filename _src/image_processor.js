@@ -68,15 +68,13 @@ ImageProcessor = {
 		files.filter(function(file) {
 			return file.indexOf(asset_id) !== -1;
 		}).forEach(function(for_deletion) {
-			fs.unlink(path + '/' + for_deletion, function(err) {
+			fs.unlink(path + '/' + for_deletion, Meteor.bindEnvironment(function(err) {
 				if(err) {
 					throw new Meteor.Error(500, 'Could not delete file with name: ' + for_deletion);
 				}
-				this.Fiber(function() {
-					Collections.removeFromCollection('images', {asset_id: asset_id});
-				}).run();
-			}.bind(this));
-		}.bind(this));
+				Collections.removeFromCollection('images', {asset_id: asset_id});
+			}));
+		});
 	},
 
 	/**
