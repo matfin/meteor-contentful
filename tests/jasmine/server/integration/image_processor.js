@@ -168,6 +168,96 @@ describe('ImageProcessor', function() {
 			 */
 			ImageProcessor.settings = false;
 			done();
+		});
+
+		it('should call future.wait(), then call the save function a number of times equal to the size of the job queue, then call future.return()', function(done) {
+
+			var futureWaitCalls = 0,
+					futureReturnCalls = 0;
+
+			/** 
+			 *	Spies
+			 */
+			spyOn(ImageProcessor, 'Future').and.callFake(function() {
+				return {
+					return: function(){
+						futureWaitCalls++;
+					},
+					wait: function(){
+						futureReturnCalls++;
+					}
+				};
+			});
+		
+			spyOn(ImageProcessor, 'request').and.callFake(function(url_params, callback) {
+				callback(null, {a: 'response'}, {a: 'body'});
+			});
+
+			spyOn(ImageProcessor, 'save').and.callFake(function(job, callback) {
+				if(job.queue.length === 0) {
+					callback();
+				}
+				else {
+					job.queue = job.queue.slice(1);
+					ImageProcessor.save(job, callback);
+				}
+			});
+
+			spyOn(ImageProcessor, 'outputs').and.callFake(function(asset, category) {
+				return [
+					{asset_id: asset.sys.id, filename: 'image-1234@1x.jpg', width: 200, density: 1, filetype: 'png', background: '#eee'},
+					{asset_id: asset.sys.id, filename: 'image-1234@2x.jpg', width: 400, density: 2, filetype: 'png', background: '#eee'},
+					{asset_id: asset.sys.id, filename: 'image-1234@3x.jpg', width: 600, density: 3, filetype: 'png', background: '#eee'},
+					{asset_id: asset.sys.id, filename: 'image-1234@4x.jpg', width: 800, density: 4, filetype: 'png', background: '#eee'},
+				]
+			});
+			/**
+			 *	Setting up
+			 */
+			var job = {
+				asset: {
+					sys: {
+						id: 1234
+					},
+					fields: {
+						file: {
+							url: '//somewhere.good.com/image.png'
+						},
+						description: 'logo'
+					}
+				}
+			};
+			ImageProcessor.settings = {
+				categories: {
+					logo: {
+						filetype: 'png',
+						background: '#eee'
+					}
+				}
+			};
+
+			/**
+			 *	Run the function and then test
+			 */
+			ImageProcessor.generate(job);
+			/**
+			 *	Note: We should expect the save function to have been called 
+			 *	5 times despite its size of four, because it should execute
+			 *	the callback function passed as an argument one extra time.
+			 */
+			expect(ImageProcessor.save.calls.count()).toEqual(5);
+
+			/**
+			 *	Testing the number of times the Future wait and return calls were made
+			 */
+			expect(futureReturnCalls).toEqual(1);
+			expect(futureWaitCalls).toEqual(1);
+
+			/**
+			 *	Cleanup and done
+			 */
+			ImageProcessor.settings = false;
+			done();
 
 		});
 
