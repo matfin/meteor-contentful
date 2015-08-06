@@ -16,6 +16,7 @@ ImageProcessor = {
 	settings: Meteor.settings.imageprocessor,
 	queue: [],
 	isrunning: false,
+	observer: false,
 
 	/**
 	 *	Check settings exist
@@ -186,8 +187,10 @@ ImageProcessor = {
 	 *	Observe changes to the assets collection and run callbacks
 	 */
 	observe: function() {
+		var query = Collections.assets.find({});
+
 		Meteor.bindEnvironment(function() {
-			Collections.assets.find({}).observeChanges({
+			this.observer = query.observeChanges({
 				added: this.assetAdded.bind(this),
 				changed: this.assetChanged.bind(this),
 			});
@@ -197,6 +200,14 @@ ImageProcessor = {
 		}.bind(this), function() {
 			throw new Meteor.Error(500, 'Failed to bind environment when observing asset collection changes.');
 		})();
+	},
+
+	/**
+	 *	Stop observing changes in the assets collection
+	 */
+	stopObserving: function() {
+		this.observer.stop();
+		this.observer = false;
 	},
 
 	/**
