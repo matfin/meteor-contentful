@@ -64,6 +64,54 @@ describe('ImageProcessor', function() {
 
 	describe('remove()', function() {
 
+		it('should filter the correct files for deletion given an asset id then remove them along with their references inside the images collectionn', function(done) {
+
+			/**
+			 *	Spies with tests
+			 */
+			spyOn(ImageProcessor.fs, 'readdirSync').and.callFake(function() {
+				return ['1234-desktop.jpg', '1234-tablet.jpg', '1234-mobile.jpg', '4567-desktop.jpg', '4567-laptop.jpg', '4567-mobile.jpg'];
+			});
+
+			spyOn(ImageProcessor.fs, 'unlink').and.callFake(function(path, callback) {
+				expect(path).toContain('/some/path/1234');
+				expect(path).not.toContain('/some/path/4567');
+				callback();
+			});
+
+			spyOn(Collections, 'removeFromCollection').and.callFake(function(collection_name, selector) {
+				expect(collection_name).toEqual('images');
+				expect(selector).toEqual({asset_id: '1234'});
+			});
+
+			/**
+			 *	Setting up
+			 */
+			ImageProcessor.settings = {
+				directory: '/some/path'
+			};
+			var job = {
+				asset: {
+					sys: {
+						id: '1234'
+					}
+				}
+			};
+
+			/**
+			 *	Run the function
+			 */
+			ImageProcessor.remove(job);
+			expect(ImageProcessor.fs.unlink.calls.count()).toEqual(3);
+			expect(Collections.removeFromCollection.calls.count()).toEqual(1);
+
+			/**
+			 *	Cleanup and done
+			 */
+			ImageProcessor.settings.directory = false;
+			done();
+		});
+
 	});
 
 	describe('generate()', function() {

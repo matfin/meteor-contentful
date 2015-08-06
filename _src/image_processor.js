@@ -73,9 +73,10 @@ ImageProcessor = {
 				if(err) {
 					throw new Meteor.Error(500, 'Could not delete file with name: ' + for_deletion);
 				}
-				Collections.removeFromCollection('images', {asset_id: asset_id});
 			}));
 		});
+
+		Collections.removeFromCollection('images', {asset_id: asset_id});
 	},
 
 	/**
