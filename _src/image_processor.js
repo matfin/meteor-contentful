@@ -223,6 +223,9 @@ ImageProcessor = {
 	 *	@param {Object} asset - the asset that has been added to the collection
 	 */
 	assetAdded: function(id, asset) {
+		if(typeof asset !== 'object') {
+			throw new Meteor.Error(500, 'Cannot add an invalid asset.');
+		}
 		var asset_is_new = (asset.fetchedAt === asset.refreshedAt);
 		if(asset_is_new) {
 			this.queue.push({
@@ -239,6 +242,9 @@ ImageProcessor = {
 	 *	@param {Object} asset - the asset that has been changed in the collection
 	 */
 	assetChanged: function(id, asset) {
+		if(typeof asset !== 'object') {
+			throw new Meteor.Error(500, 'Cannot update an invalid asset.');
+		}
 		this.queue.push({
 			asset: asset,
 			task: 'create'
@@ -251,6 +257,9 @@ ImageProcessor = {
 	 *	@param {Object} - the asset that was removed
 	 */
 	assetRemoved: function(asset) {
+		if(typeof asset !== 'object') {
+			throw new Meteor.Error(500, 'Cannot remove an invalid asset.');
+		}
 		this.queue.push({
 			asset: asset,
 			task: 'delete'

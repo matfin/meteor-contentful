@@ -59,7 +59,6 @@ describe('ImageProcessor', function() {
 
 			done();
 		});
-
 	});
 
 	describe('remove()', function() {
@@ -111,7 +110,6 @@ describe('ImageProcessor', function() {
 			ImageProcessor.settings.directory = false;
 			done();
 		});
-
 	});
 
 	describe('generate()', function() {
@@ -260,7 +258,6 @@ describe('ImageProcessor', function() {
 			done();
 
 		});
-
 	});
 
 	describe('save()', function() {
@@ -344,7 +341,6 @@ describe('ImageProcessor', function() {
 			ImageProcessor.settings = false;
 			done();
 		});
-
 	});
 
 	describe('saveToCollection()', function() {
@@ -400,7 +396,6 @@ describe('ImageProcessor', function() {
 			 */
 			done();
 		});
-
 	});
 
 	describe('outputs()', function() {
@@ -475,27 +470,186 @@ describe('ImageProcessor', function() {
 			 */
 			done();
 		});
-
 	});
 
 	describe('observe()', function() {
 
-	});
+		it('should start the observer', function(done) {
 
-	describe('stopObserving()', function() {
+			/**
+			 *	The observer should not be started
+			 */
+			expect(ImageProcessor.observer).toEqual(false);
 
+			/**
+			 *	Start it and make sure it was set up correctly
+			 */
+			ImageProcessor.observe();
+			expect(ImageProcessor.observer).toEqual(jasmine.any(Object));
+
+			/**
+			 *	Cleanup and done	
+			 */
+			ImageProcessor.stopObserving();
+			done();
+
+		});
 	});
 
 	describe('assetAdded()', function() {
 
+		it('should throw when an invalid asset is added', function(done) {
+			var asset;
+			expect(function() {
+				ImageProcessor.assetAdded('meteor_0', asset);
+			}).toThrow(new Meteor.Error(500, 'Cannot add an invalid asset.'));
+			done();
+		});
+
+		it('should push a new asset to the queue with a create task and then run the queue', function(done) {
+
+			/** 
+			 *	Spies
+			 */
+			spyOn(ImageProcessor.queue, 'push').and.callFake(function(item) {
+				expect(item).toEqual({asset: {fetchedAt: 1234, refreshedAt: 1234}, task: 'create'});
+			});
+			spyOn(ImageProcessor, 'run').and.callFake(function(){});
+
+			/**
+			 *	Setup
+			 */
+			var asset = {
+				fetchedAt: 1234,
+				refreshedAt: 1234
+			};
+
+			/**
+			 *	Run the function and test
+		 	 */
+		 	ImageProcessor.assetAdded('meteor_1', asset);
+
+		 	expect(ImageProcessor.queue.push).toHaveBeenCalled();
+		 	expect(ImageProcessor.run).toHaveBeenCalled();
+
+		 	/**
+		 	 *	Done
+		 	 */
+		 	done();
+		});
+
+		it('should not push an existing asset to the queue and it should not run the queue', function(done) {
+
+			/**
+		 	 *	Spies
+			 */
+			spyOn(ImageProcessor, 'run');
+			spyOn(ImageProcessor.queue, 'push');
+
+			var asset = {
+				fetchedAt: 1234,
+				refreshedAt: 12345
+			};
+
+			/**
+			 *	Run the function and the tests
+			 */
+			ImageProcessor.assetAdded('meteor_2', asset);
+
+			expect(ImageProcessor.run).not.toHaveBeenCalled();
+			expect(ImageProcessor.queue.push).not.toHaveBeenCalled();
+
+			/**
+			 *	Done
+			 */
+			done();
+		});
 	});
 
 	describe('assetChanged()', function() {
 
+		it('should throw when an invalid asset is added', function(done) {
+			var asset;
+			expect(function() {
+				ImageProcessor.assetChanged('meteor_3', asset);
+			}).toThrow(new Meteor.Error(500, 'Cannot update an invalid asset.'));
+			done();
+		});
+
+		it('should push an updated asset to the queue with a create task and then run the queue', function(done) {
+
+			/** 
+			 *	Spies
+			 */
+			spyOn(ImageProcessor.queue, 'push').and.callFake(function(item) {
+				expect(item).toEqual({asset: {fetchedAt: 1234, refreshedAt: 56789}, task: 'create'});
+			});
+			spyOn(ImageProcessor, 'run').and.callFake(function(){});
+
+			/**
+			 *	Setup
+			 */
+			var asset = {
+				fetchedAt: 1234,
+				refreshedAt: 56789
+			};
+
+			/**
+			 *	Run the function and test
+		 	 */
+		 	ImageProcessor.assetChanged('meteor_5', asset);
+
+		 	expect(ImageProcessor.queue.push).toHaveBeenCalled();
+		 	expect(ImageProcessor.run).toHaveBeenCalled();
+
+		 	/**
+		 	 *	Done
+		 	 */
+		 	done();
+		});
 	});
 
 	describe('assetRemoved()', function() {
 
+		it('should throw when an invalid asset is removed', function(done) {
+			var asset;
+			expect(function() {
+				ImageProcessor.assetRemoved(asset);
+			}).toThrow(new Meteor.Error(500, 'Cannot remove an invalid asset.'));
+			done();
+		});
+
+		it('should push a removed asset to the queue with a delete task and then run the queue', function(done) {
+
+			/** 
+			 *	Spies
+			 */
+			spyOn(ImageProcessor.queue, 'push').and.callFake(function(item) {
+				expect(item).toEqual({asset: {fetchedAt: 5, refreshedAt: 6}, task: 'delete'});
+			});
+			spyOn(ImageProcessor, 'run').and.callFake(function(){});
+
+			/**
+			 *	Setup
+			 */
+			var asset = {
+				fetchedAt: 5,
+				refreshedAt: 6
+			};
+
+			/**
+			 *	Run the function and test
+		 	 */
+		 	ImageProcessor.assetRemoved(asset);
+
+		 	expect(ImageProcessor.queue.push).toHaveBeenCalled();
+		 	expect(ImageProcessor.run).toHaveBeenCalled();
+
+		 	/**
+		 	 *	Done
+		 	 */
+		 	done();
+		});
 	});
 
 });
