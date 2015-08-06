@@ -349,6 +349,58 @@ describe('ImageProcessor', function() {
 
 	describe('saveToCollection()', function() {
 
+		it('should throw an error if a process being saved to a collection is not an object', function(done) {
+
+			var process;
+			expect(function() {
+				ImageProcessor.saveToCollection(process);
+			}).toThrow(new Meteor.Error(500, 'Cannot save process of type undefined'));
+
+			process = 1;
+			expect(function() {
+				ImageProcessor.saveToCollection(process);
+			}).toThrow(new Meteor.Error(500, 'Cannot save process of type number'));
+
+			process = function(){};
+			expect(function() {
+				ImageProcessor.saveToCollection(process);
+			}).toThrow(new Meteor.Error(500, 'Cannot save process of type function'));
+
+			done();
+
+		});
+
+		it('should call the Collections update function with the correct parameters', function(done) {
+
+			/**
+			 *	Setting up
+			 */
+			var process = {
+				asset_id: 1,
+				filename: '/var/somewhere/images/12345-desktop@2x.jpg'
+			};
+
+			/**
+			 *	Spies
+			 */
+			spyOn(Collections, 'updateToCollection').and.callFake(function(collection_name, selector, modifier){
+				expect(collection_name).toEqual('images');
+				
+				expect(selector).toEqual({asset_id: 1, filename: '/var/somewhere/images/12345-desktop@2x.jpg'});
+				expect(modifier).toEqual(process);
+			});
+
+			/**
+			 *	Run the function
+			 */
+			ImageProcessor.saveToCollection(process);
+
+			/**
+			 *	Cleanup and done
+			 */
+			done();
+		});
+
 	});
 
 	describe('outputs()', function() {

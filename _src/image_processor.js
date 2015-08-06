@@ -145,6 +145,9 @@ ImageProcessor = {
 	 *	@param {Object} process - contains details that need to be added to the images collection
 	 */
 	saveToCollection: function(process) {
+		if(typeof process !== 'object') {
+			throw new Meteor.Error(500, 'Cannot save process of type ' + typeof process);
+		}
 		var selector = {asset_id: process.asset_id, filename: process.filename},
 				modifier = process;
 		Collections.updateToCollection('images', selector, modifier);
