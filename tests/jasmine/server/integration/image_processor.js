@@ -265,6 +265,86 @@ describe('ImageProcessor', function() {
 
 	describe('save()', function() {
 
+		it('should execute a callback passed in as an argument and return immediately if the queue is empty', function(done) {
+			/**
+			 *	Spies and setup
+			 */
+			var callbackSpy = jasmine.createSpy('cb'),
+					job = {
+						queue: []
+					};
+			/**
+			 *	Run the function with params
+			 */
+			expect(ImageProcessor.save(job, callbackSpy)).toBeUndefined();
+			expect(callbackSpy.calls.count()).toEqual(1);
+			done();
+		});
+
+		it('should call the correct gm resize functions given a background color was specified, then save to the collection', function(done) {
+
+			/**
+			 *	Spies with tests
+			 */
+			spyOn(ImageProcessor, 'saveToCollection');
+			spyOn(ImageProcessor, 'gm').and.callFake(function(data) {
+				expect(data).toEqual({a: 'stream'});
+
+				return {
+					setFormat: function(format) {
+						expect(format).toEqual('jpg');
+						return this;
+					},
+					background: function(background) {
+						expect(background).toEqual('#ffffff');
+						return this;
+					},
+					flatten: function() {
+						return this;
+					},
+					resize: function(width) {
+						expect(width).toEqual(200);
+						return this;
+					},
+					write: function(directory, callback) {
+						expect(directory).toEqual('/some/where/a-file.jpg');
+						callback();
+						return this;
+					}
+				}
+			});
+
+			/**
+			 *	Setting up
+			 */
+			var job = {
+				stream: {a: 'stream'},
+				queue: [
+					{
+						filetype: 'jpg',
+						width: 200,
+						background: '#ffffff',
+						filename: 'a-file.jpg'
+					}
+				]
+			};
+			ImageProcessor.settings = {
+				directory: '/some/where'
+			};
+
+			/**
+			 *	Call the function
+			 */
+			ImageProcessor.save(job, function(){});
+			expect(ImageProcessor.saveToCollection).toHaveBeenCalled();
+
+			/** 
+			 *	Cleanup and done
+			 */
+			ImageProcessor.settings = false;
+			done();
+		});
+
 	});
 
 	describe('saveToCollection()', function() {
