@@ -385,7 +385,7 @@ describe('ImageProcessor', function() {
 			 */
 			spyOn(Collections, 'updateToCollection').and.callFake(function(collection_name, selector, modifier){
 				expect(collection_name).toEqual('images');
-				
+
 				expect(selector).toEqual({asset_id: 1, filename: '/var/somewhere/images/12345-desktop@2x.jpg'});
 				expect(modifier).toEqual(process);
 			});
@@ -404,6 +404,77 @@ describe('ImageProcessor', function() {
 	});
 
 	describe('outputs()', function() {
+
+		it('should throw an error if the asset being passed in is not an object', function(done) {
+
+			var asset, 
+					category;
+			expect(function() {
+				ImageProcessor.outputs(asset, category);
+			}).toThrow(new Meteor.Error(500, 'Output generation needs a valid asset and category.'));
+
+			asset = {};
+			expect(function() {
+				ImageProcessor.outputs(asset, category);
+			}).toThrow(new Meteor.Error(500, 'Output generation needs a valid asset and category.'));
+
+			done();
+
+		});
+
+		it('should generate the correct outputs given input parameters', function(done) {
+
+			/**
+			 *	Setting up
+			 */
+			var asset = {
+				sys: {
+					id: '1234',
+				}
+			},
+			category = {
+				filetype: 'jpg',
+				sizes: [
+					{
+						width: 800,
+						device: 'desktop'
+					},
+					{
+						width: 400,
+						device: 'tablet'
+					}
+				]
+			};
+
+			/**
+			 *	Run the function
+			 */
+			var outputs = ImageProcessor.outputs(asset, category);
+
+			/**
+			 *	Then run the tests
+			 */
+			expect(outputs.length).toEqual(6);
+
+			expect(outputs[0].filename).toEqual('1234-desktop.jpg');
+			expect(outputs[1].filename).toEqual('1234-desktop@2x.jpg');
+			expect(outputs[2].filename).toEqual('1234-desktop@3x.jpg');
+			expect(outputs[3].filename).toEqual('1234-tablet.jpg');
+			expect(outputs[4].filename).toEqual('1234-tablet@2x.jpg');
+			expect(outputs[5].filename).toEqual('1234-tablet@3x.jpg');
+
+			expect(outputs[0].width).toEqual(800);
+			expect(outputs[1].width).toEqual(1600);
+			expect(outputs[2].width).toEqual(2400);
+			expect(outputs[3].width).toEqual(400);
+			expect(outputs[4].width).toEqual(800);
+			expect(outputs[5].width).toEqual(1200);			
+
+			/**
+			 *	Done
+			 */
+			done();
+		});
 
 	});
 

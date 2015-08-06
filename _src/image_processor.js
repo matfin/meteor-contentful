@@ -160,6 +160,9 @@ ImageProcessor = {
 	 *	@return {Object} - generated sizes and filenames with pixel densitites 
 	 */
 	outputs: function(asset, category) {
+		if(typeof asset !== 'object' || typeof category !== 'object') {
+			throw new Meteor.Error(500, 'Output generation needs a valid asset and category.');
+		}
 		var sizes = category.sizes,
 				filetype = category.filetype,
 				background = category.background,
