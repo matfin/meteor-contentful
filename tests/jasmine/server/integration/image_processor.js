@@ -116,6 +116,61 @@ describe('ImageProcessor', function() {
 
 	describe('generate()', function() {
 
+		it('should call the request function and outputs function with the correct parameters', function(done) {
+
+			/**
+			 *	Spies
+			 */
+			spyOn(ImageProcessor, 'request').and.callFake(function(url, callback) {
+				expect(url).toEqual({url: 'http://somewhere/image.jpg', encoding: null});
+				expect(callback).toEqual(jasmine.any(Function));
+			});
+			spyOn(ImageProcessor, 'outputs').and.callFake(function(asset, category) {
+				expect(asset).toEqual({fields: {file: {url: '//somewhere/image.jpg'}, description: 'logo'}});
+				expect(category).toEqual({filetype: 'jpg', background: '#eee'});
+			});
+			spyOn(ImageProcessor, 'Future').and.callFake(function() {
+				return {
+					wait: function(){},
+					return: function(){}
+				}
+			});
+
+			/**
+			 *	Setting up
+			 */
+			var job = {
+				asset: {
+					fields: {
+						file: {
+							url: '//somewhere/image.jpg'
+						},
+						description: 'logo'
+					}
+				}
+			};
+			ImageProcessor.settings = {
+				categories: {
+					logo: {
+						filetype: 'jpg',
+						background: '#eee'
+					}
+				}
+			};
+
+			/**
+			 *	Run the function
+			 */
+			ImageProcessor.generate(job);
+
+			/**
+			 *	Cleanup and done
+			 */
+			ImageProcessor.settings = false;
+			done();
+
+		});
+
 	});
 
 	describe('save()', function() {
