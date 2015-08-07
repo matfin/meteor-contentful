@@ -8,7 +8,6 @@
 	},
 	"imageprocessor": {
 		"directory": "<process_images_go_here>",
-		"url": "<base_url_for_images>",
 		"quality": 0.9,
 		"categories": {
 			"portfolio": {
