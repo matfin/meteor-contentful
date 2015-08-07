@@ -3,7 +3,7 @@ matfin:meteor-contentful
 
 [![Build Status](https://travis-ci.org/matfin/meteor-contentful.svg?branch=master)](https://travis-ci.org/matfin/meteor-contentful)
 
-*Please note that this release has now been deprecated and will no longer be maintained. [The latest release is here](https://github.com/matfin/meteor-contentful/tree/release/1.5.0)*
+*Please note that this release has now been deprecated and will no longer be maintained. [The latest release is here](https://github.com/matfin/meteor-contentful/tree/release/1.5.0).*
 
 ## About
 
