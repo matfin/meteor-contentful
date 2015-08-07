@@ -1,5 +1,7 @@
 #matfin:meteor-contentful
 
+[![Build Status](https://travis-ci.org/matfin/meteor-contentful.svg?branch=develop)](https://travis-ci.org/matfin/meteor-contentful)
+
 This package acts as a wrapper to fetch data from the Contentful platform and then store it in your apps Meteor Mongo Collections.
 
 Contentful is a Content Management platform that allows users to create their own content types, add and edit content and then publish it. 
@@ -76,7 +78,7 @@ An example below illustrates making a connection to Contentful, fetching the dat
 ```
 if (Meteor.isClient) {
 	Meteor.startup(function() {
-	
+
 		assets_collection = new Mongo.Collection('assets');
   	entries_collection = new Mongo.Collection('entries');
   	contenttypes_collection = new Mongo.Collection('contentTypes');
