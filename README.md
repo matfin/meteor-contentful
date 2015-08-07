@@ -1,10 +1,10 @@
-#matfin:meteor-contentful
+# matfin:meteor-contentful
 
 [![Build Status](https://travis-ci.org/matfin/meteor-contentful.svg?branch=develop)](https://travis-ci.org/matfin/meteor-contentful)
 
 This package acts as a wrapper to fetch data from the Contentful platform and then store it in your apps Meteor Mongo Collections.
 
-##What is Contentful?
+## What is Contentful?
 
 Contentful is a Content Management platform that allows users to create their own content types, add and edit content and then publish it. 
 
@@ -12,11 +12,11 @@ This package supports fetching content types, entries and assets. It also suppor
 
 Images can also be fetched and resized based on what is inside your settings file (more on that later).
 
-##Use case
+## Use case
 
 The ideal use case scenario for this package would be a static site such as a blog or portfolio. Images are generated in different sizes so they can be displayed responsively, so a low resolution image at 72dpi can be displayed on an older Android device, while a nice large crisp image can be displayed on a 5k retina iMac.
 
-##Installation
+## Installation
 
 On your local development environment, create a file called settings.json in your application root directory and copy in these contents, making sure to substitute the placeholder values for your contentful settings. 
 
@@ -65,7 +65,7 @@ Then run the app with the following
 $ meteor --settings settings.json
 ```
 
-##Usage
+## Usage
 
 This package is quite simple, in that it fetches content from Contentful and listens for any incoming updates using its webhook listener.It is run server side entirely. 
 
@@ -73,7 +73,7 @@ Assuming the settings file has been set up correctly, this package will make a c
 
 It is then up to whoever is using the package to decide what they want to do with the data - how they want to filter it and format it. 
 
-###The very basics
+### The very basics
 
 An example below illustrates making a connection to Contentful, fetching the data, storing it and then publishing the collections. You could put this inside app.js in the root directory of your Meteor app.
 
@@ -111,7 +111,7 @@ if (Meteor.isServer) {
 }
 ```
 
-###Listening for updates from Contentful
+### Listening for updates from Contentful
 
 Each time you publish or unpublish an Asset or Entry from Contentful, the changes can be pushed to your app by setting up a listener and configuring your Contentful webhook to point to your server. Adding the following lines to your app.js will take care of this.
 
@@ -125,7 +125,7 @@ if(Meteor.isServer) {
 
 If an Entry is unpublished in Contentful, a POST request will be made with a payload identifying what was unpublished, and the document related to the entry will be deleted from your server side collection - the client side collection will automatically sync with this and the item will disappear. Likewise, if an entry is published again, it will appear in your server side collection.
 
-###Processing and storing images
+### Processing and storing images
 
 This package also has the ability to pull in image assets from Contentful and resize them according to the settings.json file. Here is an example of what should be added to the settings file for the ImageProcessor.
 
@@ -178,7 +178,7 @@ Ideally, when uploading image assets to Contentful, they should be uploaded as h
 }
 ```
 
-####Using the image processor
+#### Using the image processor
 
 To use the image processor, add the following code to your Meteor app. 
 
@@ -203,24 +203,24 @@ if(Meteor.isClient) {
 
 What this will do is listen for updates to the assets collection on the server side, fetch the url for the image contained in the asset, and then start processing.
 
-####Breaking it down
+#### Breaking it down
 
-#####Directory
+##### Directory
 This is the directory the processed images should be stored in.
 
-#####Quality
+##### Quality
 Used when resizing jpeg images - in this case 0.9 is 90% quality.
 
-#####Categories
+##### Categories
 You may not want all your images to be the same size across the site. This is where categories come in. Looking at the settings above, it is possible to resize logos to one particular size and have portfolio images at a completely different size.
 
-#####Filetype
+##### Filetype
 This is specified for the ImageProcessor knows what format the source image needs to be saved in. For things like photos, using jpeg is better, but for things like small logos, using png is better.
 
-#####Background
+##### Background
 This specifies the background colour that should be applied to JPG images being uploaded - in this case white. Source images uploaded to Contentful should be high resolution PNG images with no background added.
 
-#####Sizes
+##### Sizes
 The sizes the source images should be generated in - useful for responsive images, so on the client side you can specify which image needs to be loaded for a particular device. For each size, the image is generated at three different pixel densities, one for normal phones, tablets and desktops, @2x for retina devices and @3x for the iPhone 6 plus.
 
 Given a source image asset tagged with the description 'portfolio' with an ID of 123456, and assuming the above settings, the following images will be generated.
@@ -238,11 +238,11 @@ Given a source image asset tagged with the description 'portfolio' with an ID of
 It is important to note that when uploading an image asset to Contentful, the description of the asset should be tagged as such so that the ImageProcessor knows how to identify it correctly and apply the correct resizing settings to it.
 
 
-##Help and support
+## Help and support
 
 If you need help or if you spot any issues, please use the issue tracker for this repository. 
 
-##Credits
+## Credits
 
 Credit should be given to @sanjo - [https://github.com/sanjo/meteor-jasmine](https://github.com/sanjo/meteor-jasmine) for creating the Meteor Jasmine package which allowed me to test this package.
 
