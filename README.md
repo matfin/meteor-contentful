@@ -4,6 +4,8 @@
 
 This package acts as a wrapper to fetch data from the Contentful platform and then store it in your apps Meteor Mongo Collections.
 
+##What is Contentful?
+
 Contentful is a Content Management platform that allows users to create their own content types, add and edit content and then publish it. 
 
 This package supports fetching content types, entries and assets. It also supports content updates in real time for your app, as long as the Contenful webhooks are configured correctly.
