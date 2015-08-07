@@ -69,7 +69,9 @@ MeteorContentful = {
 					data.forEach(function(record) {
 						now = new Date().getTime();
 						selector = {'sys\uff0eid': record.sys.id};
-						modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: record.fields, sys: record.sys}};
+						record.refreshedAt = now;
+						//modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: record.fields, sys: record.sys}};
+						modifier = {$setOnInsert: {fetchedAt: now}, $set: record};
 						Collections.updateToCollection(which, selector, modifier);
 					});
 				}
