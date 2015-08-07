@@ -9,9 +9,9 @@ install:
   - "curl https://install.meteor.com | /bin/sh"
   # Adding meteor to the $PATH
   - "export PATH=$HOME/.meteor:$PATH"
-  # Install spacejam
-  - "npm install spacejam"
+  # Install the velocity cli tool
+  - "npm install velocity-cli"
 
 # For testing meteor packages, that's all that is needed. 
 script:
-  - "node_modules/.bin/spacejam test-packages ./ --settings settings.json"
+  - "velocity test-package ./ --ci"
