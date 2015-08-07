@@ -55,7 +55,7 @@ function configurePackage(api) {
 	 *	Dependencies
 	 */
 	api.use([
-		'matb33:collection-hooks',
+		'matb33:collection-hooks@0.7.13',
 		'mongo'
 	], 'server');
 
