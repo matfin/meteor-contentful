@@ -178,6 +178,7 @@ ImageProcessor = {
 			densities.forEach(function(density, index) {
 				outputs.push({
 					asset_id: asset.sys.id,
+					device: size.device,
 					filename: id + '-' + size.device + density.prefixed + '.' + filetype,
 					width: size.width * (density.multiplier),
 					density: density,
