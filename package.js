@@ -1,6 +1,6 @@
 Package.describe({
 	name: 			'matfin:meteor-contentful',
-	version: 		'1.5.1',
+	version: 		'1.5.2',
 	summary: 		'Package to interact with the Contentful content delivery API.',
 	documentation: 	'README.md',
 	git: 'https://github.com/matfin/meteor-contentful'
