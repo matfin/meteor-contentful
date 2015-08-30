@@ -133,6 +133,7 @@ ImageProcessor = {
 		}
 
 		action.resize(process.width)
+		.quality(settings.quality || 100)
 		.write(settings.directory + '/' + process.filename, Meteor.bindEnvironment(function(err) {
 			job.queue = job.queue.slice(1);
 			this.saveToCollection(process);

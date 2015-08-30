@@ -70,7 +70,6 @@ MeteorContentful = {
 						now = new Date().getTime();
 						selector = {'sys\uff0eid': record.sys.id};
 						record.refreshedAt = now;
-						//modifier = {$setOnInsert: {fetchedAt: now}, $set: {refreshedAt: now, fields: record.fields, sys: record.sys}};
 						modifier = {$setOnInsert: {fetchedAt: now}, $set: record};
 						Collections.updateToCollection(which, selector, modifier);
 					});
@@ -135,6 +134,8 @@ MeteorContentful = {
 		app.use(bodyparser.json({type: 'application/vnd.contentful.management.v1+json'}));
 		app.use(bodyparser.json());
 		app.listen(this.settings.callbackPort);
+		
+		console.log('Listening for changes from Contentful on port: ', this.settings.callbackPort);
 		
 		app.post('/hooks/contentful', Meteor.bindEnvironment(function(req, res) {
 
