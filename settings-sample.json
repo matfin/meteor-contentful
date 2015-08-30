@@ -8,7 +8,7 @@
 	},
 	"imageprocessor": {
 		"directory": "<process_images_go_here>",
-		"quality": 0.9,
+		"quality": 90,
 		"categories": {
 			"portfolio": {
 				"filetype": "jpg",

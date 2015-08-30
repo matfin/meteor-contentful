@@ -307,6 +307,10 @@ describe('ImageProcessor', function() {
 						expect(directory).toEqual('/some/where/a-file.jpg');
 						callback();
 						return this;
+					},
+					quality: function(percent) {
+						expect(percent).toEqual(55)
+						return this;
 					}
 				}
 			});
@@ -326,7 +330,8 @@ describe('ImageProcessor', function() {
 				]
 			};
 			ImageProcessor.settings = {
-				directory: '/some/where'
+				directory: '/some/where',
+				quality: 55
 			};
 
 			/**
