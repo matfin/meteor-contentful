@@ -135,7 +135,7 @@ Ideally, when uploading image assets to Contentful, they should be uploaded as h
 {
 	"imageprocessor": {
 		"directory": "/Library/WebServer/Documents/mattfinucane/processed",
-		"quality": 0.9,
+		"quality": 90,
 		"categories": {
 			"portfolio": {
 				"filetype": "jpg",
@@ -209,7 +209,7 @@ What this will do is listen for updates to the assets collection on the server s
 This is the directory the processed images should be stored in.
 
 ##### Quality
-Used when resizing jpeg images - in this case 0.9 is 90% quality.
+Used when resizing jpeg images and is set as a percentage
 
 ##### Categories
 You may not want all your images to be the same size across the site. This is where categories come in. Looking at the settings above, it is possible to resize logos to one particular size and have portfolio images at a completely different size.
