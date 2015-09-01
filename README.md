@@ -27,7 +27,8 @@ On your local development environment, create a file called settings.json in you
 		"space": "<your_space_id>",
 		"host": "cdn.contentful.com",
 		"callbackToken": "<your_callback_token>",
-		"callbackPort": 1234
+		"callbackPort": 1234,
+		"limit": 50
 	}
 }
 ```
@@ -40,7 +41,7 @@ The next thing you need to do is stop your Meteor app if it is already running a
 
 ```
 $ cd /to/your/meteor/app
-$ meteor add matfin:meteor-contentful@1.5.0
+$ meteor add matfin:meteor-contentful@1.5.4
 ```
 
 Note that if you want to be able to process images, you will need to install ImageMagick:
