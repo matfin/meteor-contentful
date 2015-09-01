@@ -11,6 +11,7 @@ MeteorContentful = {
 	 *	Object props
 	 */
 	settings: Meteor.settings.contentful,
+	limit: Meteor.settings.contentful.limit || 100,
 	client: false,
 	callbackPort: false,
 
@@ -61,7 +62,8 @@ MeteorContentful = {
 			throw new Meteor.Error(500, 'Contentful does not support this function: ' + which);
 		}
 		else {
-			this.client[which]().then(Meteor.bindEnvironment(function(data, err) {
+			console.log('Contentful fetch: ', which, this.limit);
+			this.client[which]({'limit': this.limit}).then(Meteor.bindEnvironment(function(data, err) {
 				if(err) {
 					throw 'Error fetching data from Contentful in attempting to call ' + which;
 				}

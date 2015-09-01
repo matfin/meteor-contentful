@@ -1,6 +1,6 @@
 Package.describe({
 	name: 			'matfin:meteor-contentful',
-	version: 		'1.5.3',
+	version: 		'1.5.4',
 	summary: 		'Package to interact with the Contentful content delivery API.',
 	documentation: 	'README.md',
 	git: 'https://github.com/matfin/meteor-contentful'
@@ -60,7 +60,7 @@ function configurePackage(api) {
 	], 'server');
 
 	Npm.depends({
-		'contentful': '1.1.1',
+		'contentful': '1.1.5',
 		'express': '4.13.1',
 		'body-parser': '1.13.2',
 		'gm': '1.18.1',

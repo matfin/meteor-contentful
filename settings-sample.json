@@ -4,7 +4,8 @@
 		"space": "<your_space_id>",
 		"host": "cdn.contentful.com",
 		"callbackToken": "<your_callback_token>",
-		"callbackPort": 1234
+		"callbackPort": 1234,
+		"limit": 200
 	},
 	"imageprocessor": {
 		"directory": "<process_images_go_here>",
