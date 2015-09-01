@@ -66,6 +66,101 @@ describe('MeteorContentful', function() {
 			done();
 		});
 
+		it('should call the Contentful fetching functions with the correct limit if one has been defined', function(done) {
+			/**
+			 *	Spies
+			 */
+			spyOn(MeteorContentful, 'Future').and.returnValue({
+				wait: function(){},
+				return: function(){} 
+			});
+			/**
+			 *	Stubs
+			 */
+			MeteorContentful.client = {
+				assets: function(limit) {
+					expect(limit).toEqual({limit: 33});
+					return {
+						then: function() {}
+					};
+				},
+				entries: function(limit) {
+					expect(limit).toEqual({limit: 33});
+					return {
+						then: function() {}
+					};
+				},
+				contentTypes: function(limit) {
+					expect(limit).toEqual({limit: 33});
+					return {
+						then: function() {}
+					};
+				}
+			};
+
+			/**
+			 *	Set an arbitary limit and then call the function and run the tests
+			 */
+			MeteorContentful.settings.limit = 33;
+			MeteorContentful.fetch('assets');
+			MeteorContentful.fetch('entries');
+			MeteorContentful.fetch('contentTypes');
+
+			/**
+			 *	Cleanup and done
+			 */
+			MeteorContentful.settings.limit = undefined;
+			MeteorContentful.client = false;
+			done();
+		});
+
+		it('should call the Contentful fetching functions with the default limit of 100 if a limit has not been defined', function(done) {
+			/**
+			 *	Spies
+			 */
+			spyOn(MeteorContentful, 'Future').and.returnValue({
+				wait: function(){},
+				return: function(){} 
+			});
+			/**
+			 *	Stubs
+			 */
+			MeteorContentful.client = {
+				assets: function(limit) {
+					expect(limit).toEqual({limit: 100});
+					return {
+						then: function() {}
+					};
+				},
+				entries: function(limit) {
+					expect(limit).toEqual({limit: 100});
+					return {
+						then: function() {}
+					};
+				},
+				contentTypes: function(limit) {
+					expect(limit).toEqual({limit: 100});
+					return {
+						then: function() {}
+					};
+				}
+			};
+
+			/**
+			 *	Set an arbitary limit and then call the function and run the tests
+			 */
+			MeteorContentful.fetch('assets');
+			MeteorContentful.fetch('entries');
+			MeteorContentful.fetch('contentTypes');
+
+			/**
+			 *	Cleanup and done
+			 */
+			MeteorContentful.settings.limit = undefined;
+			MeteorContentful.client = false;
+			done();
+		});
+
 		it('should throw an error if a client method that does not exist is passed', function(done) {
 
 			/**

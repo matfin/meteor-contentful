@@ -11,7 +11,6 @@ MeteorContentful = {
 	 *	Object props
 	 */
 	settings: Meteor.settings.contentful,
-	limit: Meteor.settings.contentful.limit || 100,
 	client: false,
 	callbackPort: false,
 
@@ -49,7 +48,8 @@ MeteorContentful = {
 	 *	@return {Object} - the result when the data has been fetched - timed by a Fiber yield
 	 */
 	fetch: function(which) {
-		var future = new this.Future(),
+		var future 	= new this.Future(),
+				limit 	= (typeof this.settings.limit !== 'undefined') ? this.settings.limit : 100, 
 				now,
 				selector, 
 				modifier,
@@ -62,8 +62,8 @@ MeteorContentful = {
 			throw new Meteor.Error(500, 'Contentful does not support this function: ' + which);
 		}
 		else {
-			console.log('Contentful fetch: ', which, this.limit);
-			this.client[which]({'limit': this.limit}).then(Meteor.bindEnvironment(function(data, err) {
+			console.log('Contentful fetch: ', which, limit);
+			this.client[which]({'limit': limit}).then(Meteor.bindEnvironment(function(data, err) {
 				if(err) {
 					throw 'Error fetching data from Contentful in attempting to call ' + which;
 				}
