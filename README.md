@@ -1,5 +1,9 @@
 # matfin:meteor-contentful
 
+### Please note:
+
+This project is no longer being maintained by me. It should work fine with Meteor ~1.0 and was developed around the time of that release. This Meteor package has not been tested with later versions of Meteor. 
+
 [![Build Status](https://travis-ci.org/matfin/meteor-contentful.svg?branch=develop)](https://travis-ci.org/matfin/meteor-contentful)
 
 This package acts as a wrapper to fetch data from the Contentful platform and then store it in your apps Meteor Mongo Collections.
